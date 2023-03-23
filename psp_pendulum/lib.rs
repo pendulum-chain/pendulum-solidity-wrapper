@@ -96,6 +96,19 @@ mod my_psp22_pallet_asset {
 			let amount: u128 = U256(amount).try_into().unwrap();
 			self._transfer(to, amount, Vec::<u8>::new()).expect("should transfer");
 		}
+
+		#[ink(message, selector = 0xdd62ed3e)]
+		pub fn allowance(&self, owner: AccountId, spender: AccountId) -> [u128; 2] {
+			let b = self._allowance(owner, spender);
+			use ethnum::U256;
+			let balance_u256: U256 = U256::try_from(b).unwrap();
+			balance_u256.0
+		}
+
+		#[ink(message, selector = 0x095ea7b3)]
+		pub fn approve(&mut self, spender: AccountId, value: Balance) {
+			self._approve(spender, value).unwrap();
+		}
 	}
 
 	impl MyPSP22 {
