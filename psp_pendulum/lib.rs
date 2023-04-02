@@ -80,14 +80,12 @@ mod my_psp22_pallet_asset {
         #[ink(message, selector = 0x70a08231)]
         pub fn balance(&self, account: AccountId) -> [u128; 2] {
             let b = self._balance_of(account);
-            use ethnum::U256;
             let balance_u256: U256 = U256::try_from(b).unwrap();
             balance_u256.0
         }
 
         #[ink(message, selector = 0x23b872dd)]
         pub fn transfer_from(&mut self, from: AccountId, to: AccountId, amount: [u128; 2]) {
-            use ethnum::U256;
             let amount: u128 = U256(amount).try_into().unwrap();
             self._transfer_from(from, to, amount, Vec::<u8>::new())
                 .expect("should transfer from");
@@ -95,16 +93,15 @@ mod my_psp22_pallet_asset {
 
         #[ink(message, selector = 0xa9059cbb)]
         pub fn transfer(&mut self, to: AccountId, amount: [u128; 2]) {
-            use ethnum::U256;
             let amount: u128 = U256(amount).try_into().unwrap();
             self._transfer(to, amount, Vec::<u8>::new())
                 .expect("should transfer");
         }
 
+
         #[ink(message, selector = 0xdd62ed3e)]
         pub fn allowance(&self, owner: AccountId, spender: AccountId) -> [u128; 2] {
             let b = self._allowance(owner, spender);
-            use ethnum::U256;
             let balance_u256: U256 = U256::try_from(b).unwrap();
             balance_u256.0
         }

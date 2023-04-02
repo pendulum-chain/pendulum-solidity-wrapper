@@ -382,8 +382,8 @@ impl From<PalletAssetErr> for PSP22Error {
             PalletAssetErr::TooManyConsumers => {
                 PSP22Error::Custom(String::from("TooManyConsumers"))
             }
-            PalletAssetErr::Token(token_err) => PSP22Error::Custom(String::from("Token")),
-            PalletAssetErr::Arithmetic(arithmetic_error) => {
+            PalletAssetErr::Token(_token_err) => PSP22Error::Custom(String::from("Token")),
+            PalletAssetErr::Arithmetic(_arithmetic_error) => {
                 PSP22Error::Custom(String::from("Arithmetic"))
             }
             _ => PSP22Error::Custom(String::from("Unnown")),
