@@ -6,7 +6,7 @@ Access to new currency id requires deployment of new psp pendulum smart contract
 
 
 
-cargo install cargo-contract --version 1.5.0
+cargo install cargo-contract --version 2.1.0
 
 Contracts
 
