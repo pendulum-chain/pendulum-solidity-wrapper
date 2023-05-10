@@ -1,7 +1,7 @@
 [package]
 name = "psp22_pendulum"
 version = "1.6.0"
-authors = ["pendulum-chain"]
+authors = ["Pendulum"]
 edition = "2021"
 
 [dependencies]
