@@ -34,7 +34,7 @@ mod price_feed {
         fn from_status_code(status_code: u32) -> Result<(), Self> {
             match status_code {
                 0 => Ok(()),
-                _ => panic!("encountered unknown status code"),
+                _ => Err(Self(ChainExtensionError::Unknown)),
             }
         }
     }
