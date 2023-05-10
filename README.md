@@ -1,4 +1,12 @@
-cargo install cargo-contract --version 1.5.0
+PSP Pendulum smart contract designed to provide access to any currency on top of substrate pendulum chain via chain extension. 
+
+Here is the conversion from primitive type to currency id: https://github.com/pendulum-chain/pendulum/blob/main/runtime/common/src/chain_ext.rs#L124-L143
+
+Access to new currency id requires deployment of new psp pendulum smart contract instance and initializing the contract with correct type_id, code and issuer to support mapping on the chain side.
+
+
+
+cargo install cargo-contract --version 2.1.0
 
 Contracts
 

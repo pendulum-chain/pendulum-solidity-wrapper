@@ -19,13 +19,9 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #![cfg_attr(not(feature = "std"), no_std)]
-#![feature(min_specialization)]
 
 use ethnum::U256;
-use ink_env::Environment;
-use ink_lang as ink;
-use ink_prelude::{string::String, vec::Vec};
-
+use ink::prelude::vec::Vec;
 mod psp_pendulum_lib;
 
 // use crate::pallet_assets::*;
@@ -34,22 +30,15 @@ mod psp_pendulum_lib;
 // 	modifiers,
 // };
 use crate::psp_pendulum_lib::PSP22Error;
-use ink_lang::ChainExtensionInstance;
 
 // #[brush::contract]
 #[ink::contract]
 mod my_psp22_pallet_asset {
     use crate::*;
-    // use brush::contracts::{
-    // 	psp22::{psp22_pallet_asset::*, *},
-    // 	traits::psp22::psp22asset::*,
-    // };
-    use ink_lang::codegen::StaticEnv;
-    use ink_prelude::string::String;
-    use ink_storage::traits::SpreadAllocate;
+    use ink::codegen::StaticEnv;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate)]
+    #[derive(Default)]
     pub struct MyPSP22 {
         pub asset_id: (u8, [u8; 12], [u8; 32]),
         pub origin_type: u8,
@@ -61,14 +50,15 @@ mod my_psp22_pallet_asset {
             origin_type: psp_pendulum_lib::OriginType,
             asset_id: (u8, [u8; 12], [u8; 32]),
         ) -> Self {
-            ink_lang::codegen::initialize_contract(|instance: &mut MyPSP22| {
-                instance.origin_type = if origin_type == psp_pendulum_lib::OriginType::Caller {
-                    0
-                } else {
-                    1
-                };
-                instance.asset_id = asset_id;
-            })
+            let origin_type = if origin_type == psp_pendulum_lib::OriginType::Caller {
+                0
+            } else {
+                1
+            };
+            Self {
+                origin_type: origin_type,
+                asset_id: asset_id,
+            }
         }
 
         #[ink(message)]
@@ -80,14 +70,12 @@ mod my_psp22_pallet_asset {
         #[ink(message, selector = 0x70a08231)]
         pub fn balance(&self, account: AccountId) -> [u128; 2] {
             let b = self._balance_of(account);
-            use ethnum::U256;
             let balance_u256: U256 = U256::try_from(b).unwrap();
             balance_u256.0
         }
 
         #[ink(message, selector = 0x23b872dd)]
         pub fn transfer_from(&mut self, from: AccountId, to: AccountId, amount: [u128; 2]) {
-            use ethnum::U256;
             let amount: u128 = U256(amount).try_into().unwrap();
             self._transfer_from(from, to, amount, Vec::<u8>::new())
                 .expect("should transfer from");
@@ -95,7 +83,6 @@ mod my_psp22_pallet_asset {
 
         #[ink(message, selector = 0xa9059cbb)]
         pub fn transfer(&mut self, to: AccountId, amount: [u128; 2]) {
-            use ethnum::U256;
             let amount: u128 = U256(amount).try_into().unwrap();
             self._transfer(to, amount, Vec::<u8>::new())
                 .expect("should transfer");
@@ -104,7 +91,6 @@ mod my_psp22_pallet_asset {
         #[ink(message, selector = 0xdd62ed3e)]
         pub fn allowance(&self, owner: AccountId, spender: AccountId) -> [u128; 2] {
             let b = self._allowance(owner, spender);
-            use ethnum::U256;
             let balance_u256: U256 = U256::try_from(b).unwrap();
             balance_u256.0
         }
