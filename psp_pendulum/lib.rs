@@ -42,6 +42,9 @@ mod my_psp22_pallet_asset {
     pub struct MyPSP22 {
         pub asset_id: (u8, [u8; 12], [u8; 32]),
         pub origin_type: u8,
+        pub name: Vec<u8>,
+        pub symbol: Vec<u8>,
+        pub decimals: u8,
     }
 
     impl MyPSP22 {
@@ -49,6 +52,9 @@ mod my_psp22_pallet_asset {
         pub fn new(
             origin_type: psp_pendulum_lib::OriginType,
             asset_id: (u8, [u8; 12], [u8; 32]),
+            name: Vec<u8>,
+            symbol: Vec<u8>,
+            decimals: u8,
         ) -> Self {
             let origin_type = if origin_type == psp_pendulum_lib::OriginType::Caller {
                 0
@@ -56,8 +62,11 @@ mod my_psp22_pallet_asset {
                 1
             };
             Self {
-                origin_type: origin_type,
-                asset_id: asset_id,
+                origin_type,
+                asset_id,
+                name,
+                symbol,
+                decimals,
             }
         }
 
@@ -66,19 +75,34 @@ mod my_psp22_pallet_asset {
             let caller = self.env().caller();
             *caller.as_ref()
         }
+        
+        #[ink(message, selector = 0x06fdde03)]
+        pub fn name(&self) -> Vec<u8> {
+            self.name.clone()
+        }
+
+        #[ink(message, selector = 0x95d89b41)]
+        pub fn symbol(&self) -> Vec<u8> {
+            self.symbol.clone()
+        }
+
+        #[ink(message, selector = 0x313ce567)]
+        pub fn decimals(&self) -> u8 {
+            self.decimals.clone()
+        }
+
+        #[ink(message, selector = 0x18160ddd)]
+        pub fn total_supply(&self) -> [u128; 2] {
+            let b = self._total_supply();
+            let total_supply_u256: U256 = U256::try_from(b).unwrap();
+            total_supply_u256.0
+        }
 
         #[ink(message, selector = 0x70a08231)]
-        pub fn balance(&self, account: AccountId) -> [u128; 2] {
+        pub fn balance_of(&self, account: AccountId) -> [u128; 2] {
             let b = self._balance_of(account);
             let balance_u256: U256 = U256::try_from(b).unwrap();
             balance_u256.0
-        }
-
-        #[ink(message, selector = 0x23b872dd)]
-        pub fn transfer_from(&mut self, from: AccountId, to: AccountId, amount: [u128; 2]) {
-            let amount: u128 = U256(amount).try_into().unwrap();
-            self._transfer_from(from, to, amount, Vec::<u8>::new())
-                .expect("should transfer from");
         }
 
         #[ink(message, selector = 0xa9059cbb)]
@@ -88,31 +112,33 @@ mod my_psp22_pallet_asset {
                 .expect("should transfer");
         }
 
-        #[ink(message, selector = 0xdd62ed3e)]
-        pub fn allowance(&self, owner: AccountId, spender: AccountId) -> [u128; 2] {
-            let b = self._allowance(owner, spender);
-            let balance_u256: U256 = U256::try_from(b).unwrap();
-            balance_u256.0
+        #[ink(message, selector = 0x23b872dd)]
+        pub fn transfer_from(&mut self, from: AccountId, to: AccountId, amount: [u128; 2]) {
+            let amount: u128 = U256(amount).try_into().unwrap();
+            self._transfer_from(from, to, amount, Vec::<u8>::new())
+                .expect("should transfer from");
         }
 
         #[ink(message, selector = 0x095ea7b3)]
         pub fn approve(&mut self, spender: AccountId, value: Balance) {
             self._approve(spender, value).unwrap();
         }
+
+        #[ink(message, selector = 0xdd62ed3e)]
+        pub fn allowance(&self, owner: AccountId, spender: AccountId) -> [u128; 2] {
+            let b = self._allowance(owner, spender);
+            let balance_u256: U256 = U256::try_from(b).unwrap();
+            balance_u256.0
+        }
     }
 
     impl MyPSP22 {
-        fn _balance_of(&self, owner: AccountId) -> Balance {
-            psp_pendulum_lib::PendulumChainExt::balance(self.asset_id, *owner.as_ref()).unwrap()
+        fn _total_supply(&self) -> Balance {
+            psp_pendulum_lib::PendulumChainExt::total_supply(self.asset_id).unwrap()
         }
 
-        fn _allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-            psp_pendulum_lib::PendulumChainExt::allowance(
-                self.asset_id,
-                *owner.as_ref(),
-                *spender.as_ref(),
-            )
-            .unwrap()
+        fn _balance_of(&self, owner: AccountId) -> Balance {
+            psp_pendulum_lib::PendulumChainExt::balance(self.asset_id, *owner.as_ref()).unwrap()
         }
 
         fn _transfer(
@@ -181,52 +207,13 @@ mod my_psp22_pallet_asset {
             }
         }
 
-        fn _increase_allowance(
-            &mut self,
-            spender: AccountId,
-            delta_value: Balance,
-        ) -> Result<(), PSP22Error> {
-            let owner = Self::env().caller();
-            let result = psp_pendulum_lib::PendulumChainExt::change_allowance(
+        fn _allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
+            psp_pendulum_lib::PendulumChainExt::allowance(
                 self.asset_id,
                 *owner.as_ref(),
                 *spender.as_ref(),
-                delta_value,
-                true,
-            );
-
-            match result {
-                Result::<(), psp_pendulum_lib::PalletAssetErr>::Ok(_) => {
-                    Result::<(), PSP22Error>::Ok(())
-                }
-                Result::<(), psp_pendulum_lib::PalletAssetErr>::Err(e) => {
-                    Result::<(), PSP22Error>::Err(PSP22Error::from(e))
-                }
-            }
-        }
-
-        fn _decrease_allowance(
-            &mut self,
-            spender: AccountId,
-            delta_value: Balance,
-        ) -> Result<(), PSP22Error> {
-            let owner = Self::env().caller();
-            let result = psp_pendulum_lib::PendulumChainExt::change_allowance(
-                self.asset_id,
-                *owner.as_ref(),
-                *spender.as_ref(),
-                delta_value,
-                false,
-            );
-
-            match result {
-                Result::<(), psp_pendulum_lib::PalletAssetErr>::Ok(_) => {
-                    Result::<(), PSP22Error>::Ok(())
-                }
-                Result::<(), psp_pendulum_lib::PalletAssetErr>::Err(e) => {
-                    Result::<(), PSP22Error>::Err(PSP22Error::from(e))
-                }
-            }
+            )
+            .unwrap()
         }
     }
 }
