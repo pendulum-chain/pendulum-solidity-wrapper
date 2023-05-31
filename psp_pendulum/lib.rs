@@ -25,41 +25,9 @@ use ink::{prelude::vec::Vec, storage::traits::StorageLayout};
 use scale::{Decode, Encode, Codec, Input};
 mod psp_pendulum_lib;
 
-use crate::psp_pendulum_lib::PSP22Error;
-use runtime_common::chain_ext::{ChainExtensionError, CurrencyId};
+use crate::psp_pendulum_lib::{PalletAssetErr, PSP22Error};
+use runtime_common::chain_ext::{self, ChainExtensionError, CurrencyId, Address, Amount, OriginType};
 
-pub struct CurrencyIdByteReader{
-    remaining_len: usize,
-    vec: Vec<u8>,
-}
-impl CurrencyIdByteReader {
-    fn new(vec: Vec<u8>) -> Self {
-        Self {
-            remaining_len: vec.len(),
-            vec,
-        }
-    }
-}
-impl Input for CurrencyIdByteReader {
-    fn remaining_len(&mut self) -> Result<Option<usize>, scale::Error> {
-        Ok(Some(self.remaining_len))
-    }
-    fn read(&mut self, into: &mut [u8]) -> Result<(), scale::Error> {
-        let mut vec_index = self.vec.len() - self.remaining_len;
-        for i in 0..into.len() {
-            if vec_index < self.vec.len() {
-                into[i] = self.vec[vec_index];
-                vec_index += 1;
-            } else {
-                into[i] = 0;
-            }
-        }
-        self.remaining_len = self.vec.len() - vec_index;
-        Ok(())
-    }
-}
-
-// #[brush::contract]
 #[ink::contract]
 mod my_psp22_pallet_asset {
     use crate::*;
@@ -78,13 +46,13 @@ mod my_psp22_pallet_asset {
     impl MyPSP22 {
         #[ink(constructor)]
         pub fn new(
-            origin_type: psp_pendulum_lib::OriginType,
+            origin_type: OriginType,
             currency_id: CurrencyId,
             name: Vec<u8>,
             symbol: Vec<u8>,
             decimals: u8,
         ) -> Self {
-            let origin_type = if origin_type == psp_pendulum_lib::OriginType::Caller {
+            let origin_type = if origin_type == OriginType::Caller {
                 0
             } else {
                 1
@@ -162,30 +130,41 @@ mod my_psp22_pallet_asset {
 
     impl MyPSP22 {
         fn _get_currency_id(&self) -> CurrencyId {
-            let mut reader = CurrencyIdByteReader::new(self.currency_id.clone());
-            CurrencyId::decode(&mut reader).unwrap()
+            chain_ext::decode(self.currency_id.clone()).unwrap()
         }
         fn _total_supply(&self) -> Balance {
-            psp_pendulum_lib::PendulumChainExt::total_supply(self._get_currency_id()).unwrap()
+            ::ink::env::chain_extension::ChainExtensionMethod::build(1107u32)
+            .input::<CurrencyId>()
+            .output::<u128, false>()
+            .handle_error_code::<PalletAssetErr>()
+            .call(&self._get_currency_id())
+            .unwrap()
         }
 
         fn _balance_of(&self, owner: AccountId) -> Balance {
-            psp_pendulum_lib::PendulumChainExt::balance(self._get_currency_id(), *owner.as_ref()).unwrap()
+            let input = (self._get_currency_id(), *owner.as_ref());
+            ::ink::env::chain_extension::ChainExtensionMethod::build(1106u32)
+                .input::<(CurrencyId, Address)>()
+                .output::<u128, false>()
+                .handle_error_code::<PalletAssetErr>()
+                .call(&input)
+                .unwrap()
         }
 
         fn _transfer(
             &mut self,
             to: AccountId,
-            value: Balance,
+            amount: Balance,
             data: Vec<u8>,
         ) -> Result<(), PSP22Error> {
-            let origin: psp_pendulum_lib::OriginType = self.origin_type.into();
-            let result = psp_pendulum_lib::PendulumChainExt::transfer(
-                origin,
-                self._get_currency_id(),
-                *to.as_ref(),
-                value.into(),
-            );
+            let input = (self.origin_type.into(), self._get_currency_id(), *to.as_ref(), amount.into());
+            let result = ::ink::env::chain_extension::ChainExtensionMethod::build(1105u32)
+                .input::<(OriginType, CurrencyId, Address, Amount)>()
+                .output::<Result<(), PalletAssetErr>, false>()
+                .handle_error_code::<PalletAssetErr>()
+                .call(&input)
+                .unwrap();
+
             match result {
                 Result::<(), psp_pendulum_lib::PalletAssetErr>::Ok(_) => {
                     Result::<(), PSP22Error>::Ok(())
@@ -200,18 +179,18 @@ mod my_psp22_pallet_asset {
             &mut self,
             from: AccountId,
             to: AccountId,
-            value: Balance,
+            amount: Balance,
             data: Vec<u8>,
         ) -> Result<(), PSP22Error> {
-            let origin: psp_pendulum_lib::OriginType = self.origin_type.into();
-            let transfer_approved_result = psp_pendulum_lib::PendulumChainExt::transfer_approved(
-                origin,
-                self._get_currency_id(),
-                *from.as_ref(),
-                *to.as_ref(),
-                value.into(),
-            );
-            match transfer_approved_result {
+            let input = (self.origin_type.into(), self._get_currency_id(), *to.as_ref(), amount);
+            let result = ::ink::env::chain_extension::ChainExtensionMethod::build(1109u32)
+                .input::<([u8; 32], (OriginType, CurrencyId, Address, Amount))>()
+                .output::<Result<(), PalletAssetErr>, false>()
+                .handle_error_code::<PalletAssetErr>()
+                .call(&(*from.as_ref(), input))
+                .unwrap();
+
+            match result {
                 Result::<(), psp_pendulum_lib::PalletAssetErr>::Ok(_) => {
                     Result::<(), PSP22Error>::Ok(())
                 }
@@ -222,14 +201,15 @@ mod my_psp22_pallet_asset {
         }
 
         fn _approve(&mut self, spender: AccountId, value: Balance) -> Result<(), PSP22Error> {
-            let origin: psp_pendulum_lib::OriginType = self.origin_type.into();
-            let approve_transfer_result = psp_pendulum_lib::PendulumChainExt::approve_transfer(
-                origin,
-                self._get_currency_id(),
-                *spender.as_ref(),
-                value.into(),
-            );
-            match approve_transfer_result {
+            let input = (self.origin_type.into(), self._get_currency_id(), *spender.as_ref(), value.into());
+            let result = ::ink::env::chain_extension::ChainExtensionMethod::build(1108u32)
+                .input::<(OriginType, CurrencyId, Address, Amount)>()
+                .output::<Result<(), PalletAssetErr>, false>()
+                .handle_error_code::<PalletAssetErr>()
+                .call(&input)
+                .unwrap();
+
+            match result {
                 Result::<(), psp_pendulum_lib::PalletAssetErr>::Ok(_) => {
                     Result::<(), PSP22Error>::Ok(())
                 }
@@ -240,21 +220,30 @@ mod my_psp22_pallet_asset {
         }
 
         fn _allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-            psp_pendulum_lib::PendulumChainExt::allowance(
-                self._get_currency_id(),
-                *owner.as_ref(),
-                *spender.as_ref(),
-            )
+            let input = (self._get_currency_id(), *owner.as_ref(), *spender.as_ref());
+            ::ink::env::chain_extension::ChainExtensionMethod::build(1110u32)
+            .input::<(CurrencyId, Address, Address)>()
+            .output::<u128, false>()
+            .handle_error_code::<PalletAssetErr>()
+            .call(&input)
             .unwrap()
         }
     }
-       
-    /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
-    /// module and test functions are marked with a `#[test]` attribute.
-    /// The below code is technically just normal Rust code.
+
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub struct ChainExtError(ChainExtensionError);
+    impl ink::env::chain_extension::FromStatusCode for ChainExtError {
+        fn from_status_code(status_code: u32) -> Result<(), Self> {
+            match status_code {
+                0 => Ok(()),
+                _ => Err(Self(ChainExtensionError::Unknown)),
+            }
+        }
+    }
+
     #[cfg(test)]
     mod tests {
-        /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
 
         #[ink::test]
