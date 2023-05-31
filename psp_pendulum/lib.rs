@@ -110,16 +110,17 @@ mod my_psp22_pallet_asset {
         pub fn transfer_from(&mut self, from: AccountId, to: AccountId, amount: [u128; 2]) {
             let amount: u128 = U256(amount).try_into().unwrap();
             let input = (
+                *from.as_ref(),
                 self.origin_type.into(),
                 self._get_currency_id(),
                 *to.as_ref(),
                 amount,
             );
             ::ink::env::chain_extension::ChainExtensionMethod::build(1109u32)
-                .input::<([u8; 32], (OriginType, CurrencyId, Address, Amount))>()
+                .input::<(Address, OriginType, CurrencyId, Address, Amount)>()
                 .output::<Result<(), ChainExtError>, false>()
                 .handle_error_code::<ChainExtError>()
-                .call(&(*from.as_ref(), input))
+                .call(&input)
                 .unwrap()
                 .expect("should transfer from");
         }
