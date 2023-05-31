@@ -21,15 +21,43 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use ethnum::U256;
-use ink::prelude::vec::Vec;
+use ink::{prelude::vec::Vec, storage::traits::StorageLayout};
+use scale::{Decode, Encode, Codec, Input};
 mod psp_pendulum_lib;
 
-// use crate::pallet_assets::*;
-// use brush::{
-// 	contracts::psp22::{utils::*, PSP22Error, *},
-// 	modifiers,
-// };
 use crate::psp_pendulum_lib::PSP22Error;
+use runtime_common::chain_ext::{ChainExtensionError, CurrencyId};
+
+pub struct CurrencyIdByteReader{
+    remaining_len: usize,
+    vec: Vec<u8>,
+}
+impl CurrencyIdByteReader {
+    fn new(vec: Vec<u8>) -> Self {
+        Self {
+            remaining_len: vec.len(),
+            vec,
+        }
+    }
+}
+impl Input for CurrencyIdByteReader {
+    fn remaining_len(&mut self) -> Result<Option<usize>, scale::Error> {
+        Ok(Some(self.remaining_len))
+    }
+    fn read(&mut self, into: &mut [u8]) -> Result<(), scale::Error> {
+        let mut vec_index = self.vec.len() - self.remaining_len;
+        for i in 0..into.len() {
+            if vec_index < self.vec.len() {
+                into[i] = self.vec[vec_index];
+                vec_index += 1;
+            } else {
+                into[i] = 0;
+            }
+        }
+        self.remaining_len = self.vec.len() - vec_index;
+        Ok(())
+    }
+}
 
 // #[brush::contract]
 #[ink::contract]
@@ -40,8 +68,8 @@ mod my_psp22_pallet_asset {
     #[ink(storage)]
     #[derive(Default)]
     pub struct MyPSP22 {
-        pub asset_id: (u8, [u8; 12], [u8; 32]),
         pub origin_type: u8,
+        pub currency_id: Vec<u8>,
         pub name: Vec<u8>,
         pub symbol: Vec<u8>,
         pub decimals: u8,
@@ -51,7 +79,7 @@ mod my_psp22_pallet_asset {
         #[ink(constructor)]
         pub fn new(
             origin_type: psp_pendulum_lib::OriginType,
-            asset_id: (u8, [u8; 12], [u8; 32]),
+            currency_id: CurrencyId,
             name: Vec<u8>,
             symbol: Vec<u8>,
             decimals: u8,
@@ -63,7 +91,7 @@ mod my_psp22_pallet_asset {
             };
             Self {
                 origin_type,
-                asset_id,
+                currency_id: currency_id.encode(),
                 name,
                 symbol,
                 decimals,
@@ -133,12 +161,16 @@ mod my_psp22_pallet_asset {
     }
 
     impl MyPSP22 {
+        fn _get_currency_id(&self) -> CurrencyId {
+            let mut reader = CurrencyIdByteReader::new(self.currency_id.clone());
+            CurrencyId::decode(&mut reader).unwrap()
+        }
         fn _total_supply(&self) -> Balance {
-            psp_pendulum_lib::PendulumChainExt::total_supply(self.asset_id).unwrap()
+            psp_pendulum_lib::PendulumChainExt::total_supply(self._get_currency_id()).unwrap()
         }
 
         fn _balance_of(&self, owner: AccountId) -> Balance {
-            psp_pendulum_lib::PendulumChainExt::balance(self.asset_id, *owner.as_ref()).unwrap()
+            psp_pendulum_lib::PendulumChainExt::balance(self._get_currency_id(), *owner.as_ref()).unwrap()
         }
 
         fn _transfer(
@@ -150,7 +182,7 @@ mod my_psp22_pallet_asset {
             let origin: psp_pendulum_lib::OriginType = self.origin_type.into();
             let result = psp_pendulum_lib::PendulumChainExt::transfer(
                 origin,
-                self.asset_id,
+                self._get_currency_id(),
                 *to.as_ref(),
                 value.into(),
             );
@@ -174,7 +206,7 @@ mod my_psp22_pallet_asset {
             let origin: psp_pendulum_lib::OriginType = self.origin_type.into();
             let transfer_approved_result = psp_pendulum_lib::PendulumChainExt::transfer_approved(
                 origin,
-                self.asset_id,
+                self._get_currency_id(),
                 *from.as_ref(),
                 *to.as_ref(),
                 value.into(),
@@ -193,7 +225,7 @@ mod my_psp22_pallet_asset {
             let origin: psp_pendulum_lib::OriginType = self.origin_type.into();
             let approve_transfer_result = psp_pendulum_lib::PendulumChainExt::approve_transfer(
                 origin,
-                self.asset_id,
+                self._get_currency_id(),
                 *spender.as_ref(),
                 value.into(),
             );
@@ -209,11 +241,26 @@ mod my_psp22_pallet_asset {
 
         fn _allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
             psp_pendulum_lib::PendulumChainExt::allowance(
-                self.asset_id,
+                self._get_currency_id(),
                 *owner.as_ref(),
                 *spender.as_ref(),
             )
             .unwrap()
+        }
+    }
+       
+    /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
+    /// module and test functions are marked with a `#[test]` attribute.
+    /// The below code is technically just normal Rust code.
+    #[cfg(test)]
+    mod tests {
+        /// Imports all the definitions from the outer scope so we can use them here.
+        use super::*;
+
+        #[ink::test]
+        fn encode_decode_works() {
+            let contract = MyPSP22::new(0.into(), CurrencyId::XCM(2), "name".into(), "symbol".into(), 0);
+            assert_eq!(contract._get_currency_id(), CurrencyId::XCM(2));
         }
     }
 }
