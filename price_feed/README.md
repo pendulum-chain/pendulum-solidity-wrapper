@@ -1,6 +1,6 @@
 # price_feed
 
-a contract that wraps the dia chain extension which provides a price feed for various assets.
+This is a contract that wraps the dia chain extension which provides a price feed for various assets.
 
 ## Setup 
 
