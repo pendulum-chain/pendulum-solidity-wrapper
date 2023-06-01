@@ -2,6 +2,10 @@
 
 PSP Pendulum is a contract designed to provide access to a pendulum asset (CurrencyId) via chain extension. To other contracts, this contract looks just like any other ERC20 contract, while it uses pendulum's chain extensions to perform the operation on the underlying native asset.
 
+## Setup
+
+Before an asset can be used with the chain extensions, it needs to first be enabled via the extrinsic: `tokenAllowance:addAllowedCurrencies`
+
 ## ERC20 Standard
 
 From the ERC20 standard at: https://ethereum.org/en/developers/docs/standards/tokens/erc-20/
