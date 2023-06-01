@@ -1,60 +1,55 @@
-psp_pendulum
+# psp_pendulum
 
-PSP Pendulum smart contract designed to provide access to any currency on top of substrate pendulum chain via chain extension. 
+PSP Pendulum is a contract designed to provide access to a pendulum asset (CurrencyId) via chain extension. To other contracts, this contract looks just like any other ERC20 contract, while it uses pendulum's chain extensions to perform the operation on the underlying native asset.
 
-Here is the conversion from primitive type to currency id: https://github.com/pendulum-chain/pendulum/blob/main/runtime/common/src/chain_ext.rs#L124-L143
+## ERC20 Standard
 
-Access to new currency id requires deployment of new psp pendulum smart contract instance and initializing the contract with correct type_id, code and issuer to support mapping on the chain side.
-
-ERC20 standard from https://ethereum.org/en/developers/docs/standards/tokens/erc-20/
-
+From the ERC20 standard at: https://ethereum.org/en/developers/docs/standards/tokens/erc-20/
 
 Methods:
 
+```
 function name() public view returns (string)
-
 function symbol() public view returns (string)
-
 function decimals() public view returns (uint8)
-
 function totalSupply() public view returns (uint256)
-
 function balanceOf(address _owner) public view returns (uint256 balance)
-
 function transfer(address _to, uint256 _value) public returns (bool success)
-
 function transferFrom(address _from, address _to, uint256 _value) public returns (bool success)
-
 function approve(address _spender, uint256 _value) public returns (bool success)
-
 function allowance(address _owner, address _spender) public view returns (uint256 remaining)
-
+```
 
 Events:
 
+```
 event Transfer(address indexed _from, address indexed _to, uint256 _value)
-
 event Approval(address indexed _owner, address indexed _spender, uint256 _value)
+```
 
+## Compatibility with Solidity ERC20 Standard
 
-Selectors are obtained like this:
+Selectors that map ink functions to the appropriate ERC20 function are obtained like this:
 
-cargo install keccak256-cli
+Install the tool: `cargo install keccak256-cli`
 
+```
 echo "name()" | keccak256 --method-id
-
+0x06fdde03
 echo "symbol()" | keccak256 --method-id
-
+0x95d89b41
 echo "decimals()" | keccak256 --method-id
-
+0x313ce567
 echo "totalSupply()" | keccak256 --method-id
-
+0x18160ddd
 echo "balanceOf(address)" | keccak256 --method-id
-
+0x70a08231
 echo "transfer(address,uint256)" | keccak256 --method-id
-
+0xa9059cbb
 echo "transferFrom(address,address,uint256)" | keccak256 --method-id
-
+0x23b872dd
 echo "approve(address,uint256)" | keccak256 --method-id
-
+0x095ea7b3
 echo "allowance(address,address)" | keccak256 --method-id
+0xdd62ed3e
+```
