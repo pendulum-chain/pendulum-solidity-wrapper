@@ -1,6 +1,6 @@
 # psp_pendulum
 
-PSP Pendulum is a contract designed to provide access to a pendulum asset (CurrencyId) via chain extension. To other contracts, this contract looks just like any other ERC20 contract, while it uses pendulum's chain extensions to perform the operation on the underlying native asset.
+PSP Pendulum is a contract designed to provide access to a Pendulum asset (CurrencyId) via chain extension. To other contracts, this contract looks just like any other ERC20 contract, while it uses Pendulum's chain extensions to perform the operation on the underlying native asset.
 
 ## Setup
 
@@ -33,7 +33,7 @@ event Approval(address indexed _owner, address indexed _spender, uint256 _value)
 
 ## Compatibility with Solidity ERC20 Standard
 
-Selectors that map ink functions to the appropriate ERC20 function are obtained like this:
+Selectors that map ink! functions to the appropriate ERC20 function are obtained like this:
 
 Install the tool: `cargo install keccak256-cli`
 

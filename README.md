@@ -1,6 +1,6 @@
 # Pendulum-Ink-Wrapper
 
-A collection of ink contracts that interact with Pendulum's chain extensions.
+A collection of ink! contracts that interact with Pendulum's chain extensions.
 
 ## Setup
 
@@ -24,7 +24,7 @@ Contract specific instructions to deploy and use:
 
 cargo-contract: (https://github.com/paritytech/cargo-contract)
 
-For more info on writing and building ink smart contracts, see: https://github.com/paritytech/ink
+For more info on writing and building ink! smart contracts, see: https://github.com/paritytech/ink
 
 
 
