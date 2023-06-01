@@ -12,7 +12,7 @@ cargo install cargo-contract --version 2.1.0
 
 ## Deploy
 
-UI to deploy and use: https://contracts-ui.substrate.io/?rpc=ws://127.0.0.1:9944
+UI to deploy and use on Foucoco testnet: https://contracts-ui.substrate.io/?rpc=wss://rpc-foucoco.pendulumchain.tech
 
 Contract specific instructions to deploy and use:
 
