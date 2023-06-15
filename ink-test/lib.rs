@@ -28,7 +28,8 @@ mod my_psp22_pallet_asset {
 
         #[ink(message, selector = 0x06fdde03)]
         pub fn name(&self) -> Vec<u8> {
-            b"TestName".to_vec()
+            let result = ink::prelude::string::String::from_utf8(b"Testname".to_vec()).expect("Should work").encode();
+            result
         }
 
         #[ink(message, selector = 0x95d89b41)]
@@ -42,11 +43,11 @@ mod my_psp22_pallet_asset {
         }
 
         #[ink(message, selector = 0x18160ddd)]
-        pub fn total_supply(&self) -> U256 {
+        pub fn total_supply(&self) -> Vec<u8> {
             debug_println!("in total_supply");
             let total_supply = U256::from(100u128);
             debug_println!("value: {}", total_supply.0[0]);
-            total_supply
+            total_supply.encode()
         }
     }
 }

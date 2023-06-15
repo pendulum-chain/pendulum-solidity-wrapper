@@ -127,6 +127,12 @@ contract Erc20Test {
         return decoded_result;
     }
 
+    function nameUntrimmed() external returns (bytes memory) {
+        (bool success, bytes memory result) = token.call(abi.encodeWithSelector(hex"06fdde03"));
+        require(success, "call failed");
+        return result;
+    }
+
     function nameWithHex() external returns (bytes memory) {
         (bool success, bytes memory result) = token.call(abi.encodeWithSelector(hex"06fdde03"));
         require(success, "call failed");
@@ -145,4 +151,32 @@ contract Erc20Test {
     function decimals() external view returns (uint8) {
         return tokenContract.decimals();
     }
+
+    function totalSupplyProper() public returns (uint256) {
+        (bool success, bytes raw_data) = token.call(abi.encodeWithSelector(hex"18160ddd"));
+        require(success);
+        if (raw_data[0] == 0) {// Success case
+            /* will be 0 anyways but we can't just "skip" that */
+            /* this will contain the contents of the "Vec<u8>" */
+            (uint8 result, bytes b) = abi.decode(raw_data, (uint8, bytes));
+            uint256 s = abi.decode(b, uint256);
+//            print(s);
+            return s;
+        }
+
+        return 0;
+    }
+
+    function nameProper() public {
+        (bool success, bytes raw_data) = token.call(abi.encodeWithSelector(hex"06fdde03"));
+        require(success);
+        if (raw_data[0] == 0) {// Success case
+            /* will be 0 anyways but we can't just "skip" that */
+            /* this will contain the contents of the "Vec<u8>" */
+            (uint8 result, bytes b) = abi.decode(raw_data, (uint8, bytes));
+            string s = abi.decode(b, string);
+            print(s);
+        }
+    }
+
 }
