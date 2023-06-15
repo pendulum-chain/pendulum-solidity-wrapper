@@ -52,6 +52,8 @@ contract Erc20Test {
         require(success, "call failed");
         // remove first 2 bytes of result before decoding to u256
         return abi.decode(removeFirstTwoBytes(result), (uint256));
+
+        // Slicing doesn't work with Solang apparently
         //        return abi.decode(result[4 :], (uint256));
     }
 
@@ -81,10 +83,6 @@ contract Erc20Test {
 
         return "";
     }
-
-    //    function name() external view returns (string memory) {
-    //        return tokenContract.name();
-    //    }
 
     function name() external view returns (string memory) {
         return tokenContract.name();

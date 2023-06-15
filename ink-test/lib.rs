@@ -33,7 +33,7 @@ mod my_psp22_pallet_asset {
 
         #[ink(message, selector = 0x18160ddd)]
         pub fn total_supply(&self) -> U256 {
-            debug_println!("in total_supply"); // Using debug_println! with values fails apparently?
+            debug_println!("in total_supply");
             let total_supply = U256::from(100u128);
             debug_println!("value: {}", total_supply.0[0]);
             total_supply
