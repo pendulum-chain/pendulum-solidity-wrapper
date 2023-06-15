@@ -9,22 +9,6 @@ contract Erc20Test {
         tokenContract = IERC20(_token);
     }
 
-    function balanceOf(address _account) external view returns (uint256) {
-        return tokenContract.balanceOf(_account);
-    }
-
-    function balanceOfSignature(address _account) external returns (uint256) {
-        (bool success, bytes memory result) = token.call(abi.encodeWithSignature("balanceOf(address)", _account));
-        require(success, "call failed");
-        return abi.decode(result, (uint256));
-    }
-
-    function balanceOfHex(address _account) external returns (uint256) {
-        (bool success, bytes memory result) = token.call(abi.encodeWithSelector(hex"70a08231", _account));
-        require(success, "call failed");
-        return abi.decode(result, (uint256));
-    }
-
     function totalSupply() external view returns (uint256) {
         return tokenContract.totalSupply();
     }
@@ -51,13 +35,22 @@ contract Erc20Test {
         (bool success, bytes memory result) = token.call(abi.encodeWithSelector(hex"18160ddd"));
         require(success, "call failed");
         // remove first 2 bytes of result before decoding to u256
-        return abi.decode(removeFirstTwoBytes(result), (uint256));
+        return abi.decode(removeFirstThreeBytes(result), (uint256));
 
         // Slicing doesn't work with Solang apparently
         //        return abi.decode(result[4 :], (uint256));
     }
 
     function removeFirstTwoBytes(bytes memory data) public pure returns (bytes memory) {
+        uint256 newDataSize = data.length - 2;
+        bytes memory newData = new bytes(newDataSize);
+        for (uint256 i = 2; i < data.length; i++) {
+            newData[i - 2] = data[i];
+        }
+        return newData;
+    }
+
+    function removeFirstThreeBytes(bytes memory data) public pure returns (bytes memory) {
         uint256 newDataSize = data.length - 2;
         bytes memory newData = new bytes(newDataSize);
         for (uint256 i = 2; i < data.length; i++) {
@@ -75,23 +68,74 @@ contract Erc20Test {
         return newData;
     }
 
-
-    function decodeHardcodedValue() external pure returns (string memory) {
-        // This is the result of calling name() on the token contract (the first 2 or 4 bytes are the function selector probably)
+    function decodeHardcodedValue2() external pure returns (string memory) {
+        // This is the result of calling name() on the token contract
+        // (the first 2 or 4 bytes are the function selector probably)
         bytes memory result = hex"280020546573744e616d65";
-        // TODO try to decode result directly without a cross-contract call
-
-        return "";
+        bytes memory trimmedResult = removeFirstTwoBytes(result);
+        return abi.decode(trimmedResult, (string));
     }
 
-    function name() external view returns (string memory) {
-        return tokenContract.name();
+    function decodeHardcodedValue3() external pure returns (string memory) {
+        // This is the result of calling name() on the token contract
+        // (the first 2 or 4 bytes are the function selector probably)
+        bytes memory result = hex"280020546573744e616d65";
+        bytes memory trimmedResult = removeFirstThreeBytes(result);
+        return abi.decode(trimmedResult, (string));
     }
 
-    function nameWithHex() external returns (string memory) {
+    function decodeHardcodedValue4() external pure returns (string memory) {
+        // This is the result of calling name() on the token contract
+        // (the first 2 or 4 bytes are the function selector probably)
+        bytes memory result = hex"280020546573744e616d65";
+        bytes memory trimmedResult = removeFirstFourBytes(result);
+        return abi.decode(trimmedResult, (string));
+    }
+
+    function decodeHardcodedU256() external pure returns (uint256) {
+        // This is the result of calling totalSupply() on the token contract
+        bytes memory result = hex"84006400000000000000000000000000000000000000000000000000000000000000";
+        return abi.decode(result, (uint256));
+    }
+
+    function decodeHardcodedU256_2() external pure returns (uint256) {
+        // This is the result of calling totalSupply() on the token contract
+        bytes memory result = hex"84006400000000000000000000000000000000000000000000000000000000000000";
+        bytes memory trimmedResult = removeFirstTwoBytes(result);
+        return abi.decode(trimmedResult, (uint256));
+    }
+
+    function decodeHardcodedU256_3() external pure returns (uint256) {
+        // This is the result of calling totalSupply() on the token contract
+        bytes memory result = hex"84006400000000000000000000000000000000000000000000000000000000000000";
+        bytes memory trimmedResult = removeFirstThreeBytes(result);
+        return abi.decode(trimmedResult, (uint256));
+    }
+
+    function decodeHardcodedU256_4() external pure returns (uint256) {
+        // This is the result of calling totalSupply() on the token contract
+        bytes memory result = hex"84006400000000000000000000000000000000000000000000000000000000000000";
+        bytes memory trimmedResult = removeFirstFourBytes(result);
+        return abi.decode(trimmedResult, (uint256));
+    }
+
+    function decodeHardcodedU256_extracted() external pure returns (uint256) {
+        // This is the result of calling totalSupply() on the token contract
+        // (the first two or three bytes are some kind of prefix probably)
+        bytes memory result = hex"84006400000000000000000000000000000000000000000000000000000000000000";
+        (bytes2 prefix, uint256 decoded_result) = abi.decode(result, (bytes2, uint256));
+        return decoded_result;
+    }
+
+    function nameWithHex() external returns (bytes memory) {
         (bool success, bytes memory result) = token.call(abi.encodeWithSelector(hex"06fdde03"));
         require(success, "call failed");
-        return abi.decode(result, (string));
+        bytes memory trimmedResult = removeFirstThreeBytes(result);
+        return trimmedResult;
+    }
+
+    function name() external view returns (bytes memory) {
+        return tokenContract.name();
     }
 
     function symbol() external view returns (string memory) {

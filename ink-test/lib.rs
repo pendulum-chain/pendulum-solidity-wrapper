@@ -31,6 +31,16 @@ mod my_psp22_pallet_asset {
             b"TestName".to_vec()
         }
 
+        #[ink(message, selector = 0x95d89b41)]
+        pub fn symbol(&self) -> Vec<u8> {
+            b"TestSymbol".to_vec()
+        }
+
+        #[ink(message, selector = 0x313ce567)]
+        pub fn decimals(&self) -> u8 {
+            12
+        }
+
         #[ink(message, selector = 0x18160ddd)]
         pub fn total_supply(&self) -> U256 {
             debug_println!("in total_supply");
