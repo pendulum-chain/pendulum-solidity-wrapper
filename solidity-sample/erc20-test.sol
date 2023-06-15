@@ -140,7 +140,7 @@ contract Erc20Test {
         return trimmedResult;
     }
 
-    function name() external view returns (bytes memory) {
+    function name() external view returns (string memory) {
         return tokenContract.name();
     }
 
@@ -151,7 +151,7 @@ contract Erc20Test {
     function decimals() external view returns (uint8) {
         return tokenContract.decimals();
     }
-
+    
     function totalSupplyProper() public returns (uint256) {
         (bool success, bytes raw_data) = token.call(abi.encodeWithSelector(hex"18160ddd"));
         require(success);
@@ -177,6 +177,27 @@ contract Erc20Test {
             string s = abi.decode(b, string);
             print(s);
         }
+    }
+
+    function nameRaw() external returns (bytes memory) {
+        (bool success, bytes memory result) = token.call(abi.encodeWithSelector(hex"06fdde03"));
+        require(success, "call failed");
+        return result;
+    }
+    function symbolRaw() external returns (bytes memory) {
+        (bool success, bytes memory result) = token.call(abi.encodeWithSelector(hex"95d89b41"));
+        require(success, "call failed");
+        return result;
+    }
+    function decimalRaw() external returns (bytes memory) {
+        (bool success, bytes memory result) = token.call(abi.encodeWithSelector(hex"313ce567"));
+        require(success, "call failed");
+        return result;
+    }
+    function totalSupplyRaw() external returns (bytes memory) {
+        (bool success, bytes memory result) = token.call(abi.encodeWithSelector(hex"18160ddd"));
+        require(success, "call failed");
+        return result;
     }
 
 }
