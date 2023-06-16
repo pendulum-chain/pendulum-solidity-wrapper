@@ -28,4 +28,20 @@ contract ERC20User {
     function decimals() external view returns (uint8) {
         return tokenContract.decimals();
     }
+
+    function transfer(address _to, uint256 _value) external returns (bool) {
+        return tokenContract.transfer(_to, _value);
+    }
+
+    function transferFrom(address _from, address _to, uint256 _value) external returns (bool) {
+        return tokenContract.transferFrom(_from, _to, _value);
+    }
+
+    function approve(address _spender, uint256 _value) external returns (bool) {
+        return tokenContract.approve(_spender, _value);
+    }
+
+    function allowance(address _owner, address _spender) external view returns (uint256) {
+        return tokenContract.allowance(_owner, _spender);
+    }
 }
