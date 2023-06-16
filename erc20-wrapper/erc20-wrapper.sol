@@ -115,7 +115,9 @@ contract ERC20Wrapper {
         bytes input = abi.encodePacked(origin, currency, spender, amount);
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(1108, input);
 
-        bool success = result_chain_ext == 0;
+        require(result_chain_ext == 0, "Call to chain_extension failed.");
+        // If the call to chain_extension was successful, the raw_data will contain only `0`s
+        bool success = isBytesAllZeros(raw_data);
         return success;
     }
 
@@ -145,6 +147,7 @@ contract ERC20Wrapper {
             print("XCM({})".format(_index));
             currency = abi.encode(_variant, _index);
         } else {
+            // TODO support the Stellar currency variants
             require(false, "Invalid variant");
             // Unknown
             currency = abi.encode(_name, _symbol);
