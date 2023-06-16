@@ -83,7 +83,9 @@ contract ERC20Wrapper {
         bytes origin = abi.encode(_originType);
         bytes currency = createCurrencyId();
         bytes to = abi.encode(_to);
-        bytes amount = abi.encode(_amount);
+
+        uint128 amountU128 = convertU256toU128(_amount);
+        bytes amount = abi.encode(amountU128);
 
         bytes input = abi.encodePacked(origin, currency, to, amount);
         print("input: {}".format(input));
@@ -103,7 +105,9 @@ contract ERC20Wrapper {
         bytes origin = abi.encode(_originType);
         bytes currency = createCurrencyId();
         bytes to = abi.encode(_to);
-        bytes amount = abi.encode(_amount);
+
+        uint128 amountU128 = convertU256toU128(_amount);
+        bytes amount = abi.encode(amountU128);
 
         bytes input = abi.encodePacked(from, origin, currency, to, amount);
         print("input: {}".format(input));
@@ -122,7 +126,9 @@ contract ERC20Wrapper {
         bytes origin = abi.encode(_originType);
         bytes currency = createCurrencyId();
         bytes spender = abi.encode(_spender);
-        bytes amount = abi.encode(_amount);
+
+        uint128 amountU128 = convertU256toU128(_amount);
+        bytes amount = abi.encode(amountU128);
 
         bytes input = abi.encodePacked(origin, currency, spender, amount);
         print("input: {}".format(input));
@@ -178,5 +184,14 @@ contract ERC20Wrapper {
             }
         }
         return true;
+    }
+
+    // If we don't use this function to convert from uint256 to uint128,
+    // then the chain extensions will just silently use u128.max() as the value instead of erroring
+    function convertU256toU128(uint256 value) public pure returns (uint128) {
+        require(value <= type(uint128).max, "Value exceeds maximum representable uint128");
+
+        uint128 result = uint128(value);
+        return result;
     }
 }
