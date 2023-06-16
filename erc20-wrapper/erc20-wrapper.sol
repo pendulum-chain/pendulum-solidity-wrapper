@@ -80,7 +80,6 @@ contract ERC20Wrapper {
     }
 
     function transfer(address _to, uint256 _amount) public returns (bool) {
-//        bytes from = abi.encode(msg.sender);
         bytes origin = abi.encode(_originType);
         bytes currency = createCurrencyId();
         bytes to = abi.encode(_to);
@@ -92,24 +91,65 @@ contract ERC20Wrapper {
         print("result_chain_ext: {}".format(result_chain_ext));
         print("raw_data: {}".format(raw_data));
 
-        bool success = result_chain_ext == 0;
-//        require(result_chain_ext == 0, "Call to chain_extension failed.");
-
-//        bool success = abi.decode(raw_data, (bool));
+        require(result_chain_ext == 0, "Call to chain_extension failed.");
+        // If the call to chain_extension was successful, the raw_data will contain only `0`s
+        bool success = isBytesAllZeros(raw_data);
         print("success: {}".format(success));
         return success;
     }
 
-    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
-        return false;
+    function transferFrom(address _from, address _to, uint256 _amount) public returns (bool) {
+        bytes from = abi.encode(_from);
+        bytes origin = abi.encode(_originType);
+        bytes currency = createCurrencyId();
+        bytes to = abi.encode(_to);
+        bytes amount = abi.encode(_amount);
+
+        bytes input = abi.encodePacked(from, origin, currency, to, amount);
+        print("input: {}".format(input));
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1109, input);
+        print("result_chain_ext: {}".format(result_chain_ext));
+        print("raw_data: {}".format(raw_data));
+
+        require(result_chain_ext == 0, "Call to chain_extension failed.");
+        // If the call to chain_extension was successful, the raw_data will contain only `0`s
+        bool success = isBytesAllZeros(raw_data);
+        print("success: {}".format(success));
+        return success;
     }
 
-    function approve(address _spender, uint256 _value) public returns (bool success) {
-        return false;
+    function approve(address _spender, uint256 _amount) public returns (bool) {
+        bytes origin = abi.encode(_originType);
+        bytes currency = createCurrencyId();
+        bytes spender = abi.encode(_spender);
+        bytes amount = abi.encode(_amount);
+
+        bytes input = abi.encodePacked(origin, currency, spender, amount);
+        print("input: {}".format(input));
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1108, input);
+        print("result_chain_ext: {}".format(result_chain_ext));
+        print("raw_data: {}".format(raw_data));
+
+        bool success = result_chain_ext == 0;
+        print("success: {}".format(success));
+        return success;
     }
 
-    function allowance(address _owner, address _spender) public returns (uint256 remaining) {
-        return 0;
+    function allowance(address _owner, address _spender) public returns (uint256) {
+        bytes currency = createCurrencyId();
+        bytes owner = abi.encode(_owner);
+        bytes spender = abi.encode(_spender);
+        bytes input = abi.encodePacked(currency, owner, spender);
+        print("input: {}".format(input));
+
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1110, input);
+        require(result_chain_ext == 0, "Call to chain_extension failed.");
+
+        uint128 allowanceU128 = abi.decode(raw_data, (uint128));
+        print("allowanceU128: {}".format(allowanceU128));
+
+        uint256 allowanceU256 = uint256(allowanceU128);
+        return allowanceU256;
     }
 
     function createCurrencyId() public view returns (bytes) {
@@ -129,5 +169,14 @@ contract ERC20Wrapper {
             currency = abi.encode(_name, _symbol);
         }
         return currency;
+    }
+
+    function isBytesAllZeros(bytes memory data) private pure returns (bool) {
+        for (uint256 i = 0; i < data.length; i++) {
+            if (data[i] != 0) {
+                return false;
+            }
+        }
+        return true;
     }
 }
