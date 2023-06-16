@@ -1,6 +1,6 @@
 import "substrate";
 
-contract IERC20Wrapper {
+contract ERC20Wrapper {
 
     string private _name;
     string private _symbol;
