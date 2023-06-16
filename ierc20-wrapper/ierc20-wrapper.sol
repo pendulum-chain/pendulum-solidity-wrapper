@@ -1,79 +1,95 @@
-contract NativeTokenWrapperSolidity {
-    address public token;
+import "substrate";
 
-    constructor(address _token) {
-        token = _token;
+contract IERC20Wrapper {
+
+    string private _name;
+    string private _symbol;
+    uint8 private _decimals;
+
+    bytes1 private _variant;
+    bytes1 private _index;
+
+    constructor(string memory name_, string memory symbol_, uint8 decimals_, bytes1 variant_, bytes1 index_) {
+        _name = name_;
+        _symbol = symbol_;
+        _decimals = decimals_;
+
+        _variant = variant_;
+        _index = index_;
     }
 
-    function name() public returns (string memory) {
-        (bool ok, bytes raw_data) = token.call(abi.encodeWithSelector(hex"06fdde03"));
-        require(ok);
-        (uint8 result, bytes b) = abi.decode(raw_data, (uint8, bytes));
-        require(result == 0);
-        return abi.decode(b, string);
+    /**
+     * @dev Returns the name of the token.
+     */
+    function name() public view virtual returns (string memory) {
+        return _name;
     }
 
-    function symbol() public returns (string memory) {
-        (bool ok, bytes raw_data) = token.call(abi.encodeWithSelector(hex"95d89b41"));
-        require(ok);
-        (uint8 result, bytes b) = abi.decode(raw_data, (uint8, bytes));
-        require(result == 0);
-        return abi.decode(b, string);
+    /**
+     * @dev Returns the symbol of the token, usually a shorter version of the
+     * name.
+     */
+    function symbol() public view virtual returns (string memory) {
+        return _symbol;
     }
 
-    function decimals() public returns (uint8) {
-        (bool ok, bytes raw_data) = token.call(abi.encodeWithSelector(hex"313ce567"));
-        require(ok);
-        (uint8 result, bytes b) = abi.decode(raw_data, (uint8, bytes));
-        require(result == 0);
-        return abi.decode(b, uint8);
+    function decimals() public view virtual returns (uint8) {
+        return _decimals;
     }
 
-    function totalSupply() public returns (uint256) {
-        (bool ok, bytes raw_data) = token.call(abi.encodeWithSelector(hex"18160ddd"));
-        require(ok);
-        (uint8 result, bytes b) = abi.decode(raw_data, (uint8, bytes));
-        require(result == 0);
-        return abi.decode(b, uint256);
+    // TODO change return type to uint256
+    function totalSupply() public returns (uint128) {
+        bytes currency = createCurrencyId();
+        bytes input = currency;
+
+        print("currency: {}".format(currency));
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1107, input);
+        print("result_chain_ext: {}".format(result_chain_ext));
+        print("raw_data: {}".format(raw_data));
+        require(result_chain_ext == 0, "Call to chain_extension failed.");
+
+        uint128 totalSupply = abi.decode(raw_data, (uint128));
+        print("totalSupply: {}".format(totalSupply));
+        return totalSupply;
     }
 
     function balanceOf(address _owner) public returns (uint256 balance) {
-        (bool ok, bytes raw_data) = token.call(abi.encodeWithSelector(hex"70a08231", _owner));
-        require(ok);
-        (uint8 result, bytes b) = abi.decode(raw_data, (uint8, bytes));
-        require(result == 0);
-        return abi.decode(b, uint256);
+        return 0;
     }
 
     function transfer(address _to, uint256 _value) public returns (bool success) {
-        (bool ok, bytes raw_data) = token.call(abi.encodeWithSelector(hex"a9059cbb", _to, _value));
-        require(ok);
-        (uint8 result, bytes b) = abi.decode(raw_data, (uint8, bytes));
-        require(result == 0);
-        return abi.decode(b, bool);
+        return false;
     }
 
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
-        (bool ok, bytes raw_data) = token.call(abi.encodeWithSelector(hex"23b872dd", _from, _to, _value));
-        require(ok);
-        (uint8 result, bytes b) = abi.decode(raw_data, (uint8, bytes));
-        require(result == 0);
-        return abi.decode(b, bool);
+        return false;
     }
 
     function approve(address _spender, uint256 _value) public returns (bool success) {
-        (bool ok, bytes raw_data) = token.call(abi.encodeWithSelector(hex"095ea7b3", _spender, _value));
-        require(ok);
-        (uint8 result, bytes b) = abi.decode(raw_data, (uint8, bytes));
-        require(result == 0);
-        return abi.decode(b, bool);
+        return false;
     }
 
     function allowance(address _owner, address _spender) public returns (uint256 remaining) {
-        (bool ok, bytes raw_data) = token.call(abi.encodeWithSelector(hex"dd62ed3e", _owner, _spender));
-        require(ok);
-        (uint8 result, bytes b) = abi.decode(raw_data, (uint8, bytes));
-        require(result == 0);
-        return abi.decode(b, uint256);
+        return 0;
+    }
+
+    function createCurrencyId() public returns (bytes) {
+        // Scale encode the currency symbol based on name and symbol
+        // We somehow need to encode the currency symbol in a way that it is decodable by our chain extension
+        bytes memory currency = new bytes(0);
+        if (_variant == 0) {
+            // Native
+            print("Native");
+            currency = abi.encode(_variant);
+        } else if (_variant == 1) {
+            // XCM(_index)
+            print("XCM({})".format(_index));
+            currency = abi.encode(_variant, _index);
+        } else {
+            require(false, "Invalid variant");
+            // Unknown
+            currency = abi.encode(_name, _symbol);
+        }
+        return currency;
     }
 }
