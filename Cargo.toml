@@ -2,9 +2,7 @@
 resolver = "2"
 members = [
     "native-token-wrapper-ink",
-    "ink-test",
     "price_feed",
-    "psp_pendulum",
 ]
 
 [profile.release]
