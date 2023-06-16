@@ -1,6 +1,8 @@
 # psp_pendulum
 
-PSP Pendulum is a contract designed to provide access to a Pendulum asset (CurrencyId) via chain extension. To other contracts, this contract looks just like any other ERC20 contract, while it uses Pendulum's chain extensions to perform the operation on the underlying native asset.
+PSP Pendulum is a contract designed to provide access to a Pendulum asset (CurrencyId) via chain extensions. This allows native tokens to be wrapped and used in the smart contract world. 
+
+Note that for Solidity contracts to see this as an `IERC20` token just like any other `IERC20` token, we have a Solidity contract that wraps this one, `native-token-wrapper-solidity` providing the usable implementation of the interface.
 
 ## Setup
 

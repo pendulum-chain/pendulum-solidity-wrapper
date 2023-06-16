@@ -13,7 +13,7 @@
 # The cache for docker container dependency
 /.cargo/config
 
-/solidity-sample/solang/**
+*/solang/**
 
 .DS_Store
 .idea

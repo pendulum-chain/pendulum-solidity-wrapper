@@ -1,7 +1,8 @@
-# Solidity Sample contract
+# erc20-test
 
-This directory contains a sample contract written in solidity that can be deployed on the pendulum chain.
-It is supposed to be used for testing the cross-contract communication between ink! and solidity contracts.
+This contract is used to test if our native-token-wrapper-solidity contract does indeed implement our `IERC20` interface, which is a combination of openzeppelin's `IERC20` and `IERC20Metadata`
+
+When deploying, point to the `native-token-wrapper-solidity` contract (or any other contract you expect implements our `IERC20`)
 
 ## Compiling the solidity contract
 

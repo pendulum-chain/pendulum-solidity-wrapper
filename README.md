@@ -18,7 +18,11 @@ Contract specific instructions to deploy and use:
 
 [price_feed](/price_feed/README.md)
 
-[psp_pendulum](/price_feed/README.md)
+[erc20-test](/erc20-test/README.md)
+
+[native-token-wrapper-ink](/native-token-wrapper-ink/README.md)
+
+[native-token-wrapper-solidity](/native-token-wrapper-solidity/README.md)
 
 ## References
 
