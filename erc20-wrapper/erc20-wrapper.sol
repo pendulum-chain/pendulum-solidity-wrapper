@@ -55,7 +55,23 @@ contract ERC20Wrapper {
     }
 
     function balanceOf(address _owner) public returns (uint256 balance) {
-        return 0;
+        // Encode currency and address
+        bytes currency = createCurrencyId();
+        bytes owner = abi.encode(_owner);
+        // Concatenate the already encoded values with abi.encodePacked()
+        bytes input = abi.encodePacked(currency, owner);
+        print("input: {}".format(input));
+
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1106, input);
+        print("result_chain_ext: {}".format(result_chain_ext));
+        print("raw_data: {}".format(raw_data));
+        require(result_chain_ext == 0, "Call to chain_extension failed.");
+
+        uint128 balanceU128 = abi.decode(raw_data, (uint128));
+        print("totalSupply: {}".format(balanceU128));
+
+        uint256 balanceU256 = uint256(balanceU128);
+        return balanceU256;
     }
 
     function transfer(address _to, uint256 _value) public returns (bool success) {
