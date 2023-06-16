@@ -17,14 +17,14 @@ We need to specify the importmap for the openzeppelin contracts, because solang 
 syntax.
 
 ```bash
-solang compile --target substrate --output solang/contracts erc20-test.sol --importmap @openzeppelin=openzeppelin-contracts/
-```
+solang compile --target substrate --output solang/contracts erc20-user.sol --importmap @openzeppelin=openzeppelin-contracts/
+````
 
 Or from the root directory
 
 ```bash
-solang compile --target substrate --output target/solang/contracts solidity-sample/erc20-test.sol --importmap @openzeppelin=solidity-sample/openzeppelin-contracts/
+solang compile --target substrate --output target/solang/contracts solidity-sample/erc20-user.sol --importmap @openzeppelin=solidity-sample/openzeppelin-contracts/
 ```
 
-As a result you will get a file called `Erc20Test.contract` in the `solang/contracts/` directory.
+As a result you will get a file called `ERC20User.contract` in the `solang/contracts/` directory.
 You can now deploy this contract to a parachain using Contracts UI. 

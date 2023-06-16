@@ -1,6 +1,6 @@
 import "@openzeppelin/interfaces/IERC20.sol";
 
-contract Erc20Test {
+contract ERC20User {
     address public token;
     IERC20 public tokenContract;
 
