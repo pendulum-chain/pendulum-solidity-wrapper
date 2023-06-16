@@ -24,5 +24,10 @@ syntax.
 solang compile --target substrate --output solang/contracts erc20-wrapper.sol
 ```
 
+```bash
+# Or from root directory
+solang compile --target substrate --output target/solang/contracts erc20-wrapper/erc20-wrapper.sol 
+```
+
 As a result you will get a file called `ERC20Wrapper.contract` in the `solang/contracts/` directory.
 You can now deploy this contract to a parachain using Contracts UI. 

@@ -37,8 +37,7 @@ contract ERC20Wrapper {
         return _decimals;
     }
 
-    // TODO change return type to uint256
-    function totalSupply() public returns (uint128) {
+    function totalSupply() public returns (uint256) {
         bytes currency = createCurrencyId();
         bytes input = currency;
 
@@ -48,9 +47,11 @@ contract ERC20Wrapper {
         print("raw_data: {}".format(raw_data));
         require(result_chain_ext == 0, "Call to chain_extension failed.");
 
-        uint128 totalSupply = abi.decode(raw_data, (uint128));
-        print("totalSupply: {}".format(totalSupply));
-        return totalSupply;
+        uint128 totalSupplyU128 = abi.decode(raw_data, (uint128));
+        print("totalSupply: {}".format(totalSupplyU128));
+
+        uint256 totalSupplyU256 = uint256(totalSupplyU128);
+        return totalSupplyU256;
     }
 
     function balanceOf(address _owner) public returns (uint256 balance) {
