@@ -74,9 +74,8 @@ contract ERC20Wrapper {
     }
 
     function createCurrencyId() public returns (bytes) {
-        // Scale encode the currency symbol based on name and symbol
-        // We somehow need to encode the currency symbol in a way that it is decodable by our chain extension
         bytes memory currency = new bytes(0);
+        // We use the knowledge we have about our `CurrencyId` enum to craft the encoding
         if (_variant == 0) {
             // Native
             print("Native");
