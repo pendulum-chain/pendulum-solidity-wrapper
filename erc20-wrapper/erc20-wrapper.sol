@@ -9,16 +9,11 @@ contract ERC20Wrapper {
     bytes1 private _variant;
     bytes1 private _index;
 
-    // `0` indicates OriginType 'caller'
-    // everything else indicates OriginType 'address'
-    uint8 private _originType;
-
-    constructor(string memory name_, string memory symbol_, uint8 decimals_, uint8 originType_, bytes1 variant_, bytes1 index_) {
+    constructor(string memory name_, string memory symbol_, uint8 decimals_, bytes1 variant_, bytes1 index_) {
         _name = name_;
         _symbol = symbol_;
         _decimals = decimals_;
 
-        _originType = originType_;
         _variant = variant_;
         _index = index_;
     }
@@ -46,7 +41,8 @@ contract ERC20Wrapper {
         bytes currency = createCurrencyId();
         bytes input = currency;
 
-        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1107, input);
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1101, input);
+        print("raw_data: {}".format(raw_data));
         require(result_chain_ext == 0, "Call to chain_extension failed.");
 
         uint128 totalSupplyU128 = abi.decode(raw_data, (uint128));
@@ -61,7 +57,8 @@ contract ERC20Wrapper {
         // Concatenate the already encoded values with abi.encodePacked()
         bytes input = abi.encodePacked(currency, owner);
 
-        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1106, input);
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1102, input);
+        print("raw_data: {}".format(raw_data));
         require(result_chain_ext == 0, "Call to chain_extension failed.");
 
         uint128 balanceU128 = abi.decode(raw_data, (uint128));
@@ -70,52 +67,18 @@ contract ERC20Wrapper {
     }
 
     function transfer(address _to, uint256 _amount) public returns (bool) {
-        bytes origin = abi.encode(_originType);
         bytes currency = createCurrencyId();
         bytes to = abi.encode(_to);
 
         uint128 amountU128 = convertU256toU128(_amount);
         bytes amount = abi.encode(amountU128);
 
-        bytes input = abi.encodePacked(origin, currency, to, amount);
-        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1105, input);
-        require(result_chain_ext == 0, "Call to chain_extension failed.");
-
-        // If the call to chain_extension was successful, the raw_data will contain only `0`s
-        bool success = isBytesAllZeros(raw_data);
-        return success;
-    }
-
-    function transferFrom(address _from, address _to, uint256 _amount) public returns (bool) {
-        bytes from = abi.encode(_from);
-        bytes origin = abi.encode(_originType);
-        bytes currency = createCurrencyId();
-        bytes to = abi.encode(_to);
-
-        uint128 amountU128 = convertU256toU128(_amount);
-        bytes amount = abi.encode(amountU128);
-
-        bytes input = abi.encodePacked(from, origin, currency, to, amount);
-        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1109, input);
-        require(result_chain_ext == 0, "Call to chain_extension failed.");
-
-        // If the call to chain_extension was successful, the raw_data will contain only `0`s
-        bool success = isBytesAllZeros(raw_data);
-        return success;
-    }
-
-    function approve(address _spender, uint256 _amount) public returns (bool) {
-        bytes origin = abi.encode(_originType);
-        bytes currency = createCurrencyId();
-        bytes spender = abi.encode(_spender);
-
-        uint128 amountU128 = convertU256toU128(_amount);
-        bytes amount = abi.encode(amountU128);
-
-        bytes input = abi.encodePacked(origin, currency, spender, amount);
-        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1108, input);
+        bytes input = abi.encodePacked(currency, to, amount);
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1103, input);
+        print("raw_data: {}".format(raw_data));
 
         require(result_chain_ext == 0, "Call to chain_extension failed.");
+
         // If the call to chain_extension was successful, the raw_data will contain only `0`s
         bool success = isBytesAllZeros(raw_data);
         return success;
@@ -127,12 +90,47 @@ contract ERC20Wrapper {
         bytes spender = abi.encode(_spender);
         bytes input = abi.encodePacked(currency, owner, spender);
 
-        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1110, input);
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1104, input);
         require(result_chain_ext == 0, "Call to chain_extension failed.");
 
         uint128 allowanceU128 = abi.decode(raw_data, (uint128));
         uint256 allowanceU256 = uint256(allowanceU128);
         return allowanceU256;
+    }
+
+    function approve(address _spender, uint256 _amount) public returns (bool) {
+        bytes currency = createCurrencyId();
+        bytes spender = abi.encode(_spender);
+
+        uint128 amountU128 = convertU256toU128(_amount);
+        bytes amount = abi.encode(amountU128);
+
+        bytes input = abi.encodePacked(currency, spender, amount);
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1105, input);
+
+        print("raw_data: {}".format(raw_data));
+        require(result_chain_ext == 0, "Call to chain_extension failed.");
+        // If the call to chain_extension was successful, the raw_data will contain only `0`s
+        bool success = isBytesAllZeros(raw_data);
+        return success;
+    }
+
+    function transferFrom(address _from, address _to, uint256 _amount) public returns (bool) {
+        bytes from = abi.encode(_from);
+        bytes currency = createCurrencyId();
+        bytes to = abi.encode(_to);
+
+        uint128 amountU128 = convertU256toU128(_amount);
+        bytes amount = abi.encode(amountU128);
+
+        bytes input = abi.encodePacked(from, currency, to, amount);
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1106, input);
+        print("raw_data: {}".format(raw_data));
+        require(result_chain_ext == 0, "Call to chain_extension failed.");
+
+        // If the call to chain_extension was successful, the raw_data will contain only `0`s
+        bool success = isBytesAllZeros(raw_data);
+        return success;
     }
 
     function createCurrencyId() public view returns (bytes) {
