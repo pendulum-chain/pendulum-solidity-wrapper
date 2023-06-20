@@ -9,13 +9,20 @@ contract ERC20Wrapper {
     bytes1 private _variant;
     bytes1 private _index;
 
-    constructor(string memory name_, string memory symbol_, uint8 decimals_, bytes1 variant_, bytes1 index_) {
+    // This can be either 4 or 12 bytes long
+    bytes12 private _code;
+    bytes32 private _issuer;
+
+    constructor(string memory name_, string memory symbol_, uint8 decimals_, bytes1 variant_, bytes1 index_, bytes12 code_, bytes32 issuer_) {
         _name = name_;
         _symbol = symbol_;
         _decimals = decimals_;
 
         _variant = variant_;
         _index = index_;
+
+        _code = code_;
+        _issuer = issuer_;
     }
 
     /**
@@ -144,11 +151,27 @@ contract ERC20Wrapper {
             // XCM(_index)
             print("XCM({})".format(_index));
             currency = abi.encode(_variant, _index);
+        } else if (_variant == 2) {
+            // Stellar { StellarNative, AlphaNum4, AlphaNum12 }
+            if (_index == 0) {
+                // StellarNative
+                print("StellarNative");
+                currency = abi.encode(_variant, _index);
+            } else if (_index == 1) {
+                // AlphaNum4 { code: Bytes4, issuer: AssetIssuer }
+                // We make sure that the code is 4 bytes long
+                bytes4 code = bytes4(_code);
+                print("AlphaNum4({},{})".format(code, _issuer));
+                currency = abi.encode(_variant, _index, code, _issuer);
+            } else if (_index == 2) {
+                // AlphaNum12 { code: Bytes12, issuer: AssetIssuer }
+                print("AlphaNum12({},{})".format(_code, _issuer));
+                currency = abi.encode(_variant, _index, _code, _issuer);
+            } else {
+                require(false, "Invalid Stellar variant");
+            }
         } else {
-            // TODO support the Stellar currency variants
-            require(false, "Invalid variant");
-            // Unknown
-            currency = abi.encode(_name, _symbol);
+            require(false, "Invalid currency variant");
         }
         return currency;
     }
