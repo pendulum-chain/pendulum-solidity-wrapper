@@ -49,7 +49,6 @@ contract ERC20Wrapper {
         bytes input = currency;
 
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(1101, input);
-        print("raw_data: {}".format(raw_data));
         require(result_chain_ext == 0, "Call to chain_extension failed.");
 
         uint128 totalSupplyU128 = abi.decode(raw_data, (uint128));
@@ -65,7 +64,6 @@ contract ERC20Wrapper {
         bytes input = abi.encodePacked(currency, owner);
 
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(1102, input);
-        print("raw_data: {}".format(raw_data));
         require(result_chain_ext == 0, "Call to chain_extension failed.");
 
         uint128 balanceU128 = abi.decode(raw_data, (uint128));
@@ -82,8 +80,6 @@ contract ERC20Wrapper {
 
         bytes input = abi.encodePacked(currency, to, amount);
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(1103, input);
-        print("raw_data: {}".format(raw_data));
-
         require(result_chain_ext == 0, "Call to chain_extension failed.");
 
         // If the call to chain_extension was successful, the raw_data will contain only `0`s
@@ -114,9 +110,8 @@ contract ERC20Wrapper {
 
         bytes input = abi.encodePacked(currency, spender, amount);
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(1105, input);
-
-        print("raw_data: {}".format(raw_data));
         require(result_chain_ext == 0, "Call to chain_extension failed.");
+
         // If the call to chain_extension was successful, the raw_data will contain only `0`s
         bool success = isBytesAllZeros(raw_data);
         return success;
@@ -132,7 +127,6 @@ contract ERC20Wrapper {
 
         bytes input = abi.encodePacked(from, currency, to, amount);
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(1106, input);
-        print("raw_data: {}".format(raw_data));
         require(result_chain_ext == 0, "Call to chain_extension failed.");
 
         // If the call to chain_extension was successful, the raw_data will contain only `0`s
@@ -140,32 +134,27 @@ contract ERC20Wrapper {
         return success;
     }
 
-    function createCurrencyId() public view returns (bytes) {
+    function createCurrencyId() private view returns (bytes) {
         bytes memory currency = new bytes(0);
         // We use the knowledge we have about our `CurrencyId` enum to craft the encoding
         if (_variant == 0) {
             // Native
-            print("Native");
             currency = abi.encode(_variant);
         } else if (_variant == 1) {
             // XCM(_index)
-            print("XCM({})".format(_index));
             currency = abi.encode(_variant, _index);
         } else if (_variant == 2) {
             // Stellar { StellarNative, AlphaNum4, AlphaNum12 }
             if (_index == 0) {
                 // StellarNative
-                print("StellarNative");
                 currency = abi.encode(_variant, _index);
             } else if (_index == 1) {
                 // AlphaNum4 { code: Bytes4, issuer: AssetIssuer }
                 // We make sure that the code is 4 bytes long
                 bytes4 code = bytes4(_code);
-                print("AlphaNum4({},{})".format(code, _issuer));
                 currency = abi.encode(_variant, _index, code, _issuer);
             } else if (_index == 2) {
                 // AlphaNum12 { code: Bytes12, issuer: AssetIssuer }
-                print("AlphaNum12({},{})".format(_code, _issuer));
                 currency = abi.encode(_variant, _index, _code, _issuer);
             } else {
                 require(false, "Invalid Stellar variant");
@@ -187,7 +176,7 @@ contract ERC20Wrapper {
 
     // If we don't use this function to convert from uint256 to uint128,
     // then the chain extensions will just silently use u128.max() as the value instead of erroring
-    function convertU256toU128(uint256 value) public pure returns (uint128) {
+    function convertU256toU128(uint256 value) private pure returns (uint128) {
         require(value <= type(uint128).max, "Value exceeds maximum representable uint128");
 
         uint128 result = uint128(value);
