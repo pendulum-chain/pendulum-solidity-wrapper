@@ -47,7 +47,7 @@ contract PriceFeedWrapper is IPriceOracleGetter {
      */
     function getAnyAsset(string blockchain, string symbol) public returns (CoinInfo result) {
         bytes input = abi.encodePacked(stringToBytes32(blockchain), stringToBytes32(symbol));
-        (uint32 result_chain_ext, bytes raw_data) = chain_extension(7777, input);
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1200, input);
         require(result_chain_ext == 0, "Call to chain_extension failed.");
         require(raw_data[0] == 0, "Chain extension call returned an error.");
         (uint8 _, CoinInfo coinInfo) = abi.decode(raw_data, (uint8, CoinInfo));

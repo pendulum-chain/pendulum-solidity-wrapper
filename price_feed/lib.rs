@@ -19,7 +19,7 @@ mod price_feed {
             symbol: Symbol,
         ) -> Result<CoinInfo, ChainExtError> {
             let input = (blockchain, symbol);
-            ::ink::env::chain_extension::ChainExtensionMethod::build(7777u32)
+            ::ink::env::chain_extension::ChainExtensionMethod::build(1200u32)
                 .input::<(Blockchain, Symbol)>()
                 .output::<Result<CoinInfo, ChainExtError>, false>()
                 .handle_error_code::<ChainExtError>()

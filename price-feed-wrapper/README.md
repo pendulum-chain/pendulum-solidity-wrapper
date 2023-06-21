@@ -2,7 +2,7 @@
 
 This contract provides the `function getAssetPrice(address asset) external returns (uint256 price)` function that is expected by Nabla's `IPriceOracleGetter` interface.
 
-It calls the `7777` chain extension which fetches a price feed from the chain. The inputs `blockchain` and `symbol` are the keys to query a particular price feed. 
+It calls the `1200` chain extension which fetches a price feed from the chain. The inputs `blockchain` and `symbol` are the keys to query a particular price feed. 
 
 For the purposes of the `getAssetPrice` function, an instance of this contract refers to one particular price feed based on the inputs provided in the constructor. However, the contract also exposes the underlying functions which can query any asset, which is useful for testing and experimentation purposes.
 
