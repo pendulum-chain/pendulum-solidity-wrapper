@@ -18,3 +18,7 @@
 .DS_Store
 .idea
 .vscode
+
+# Compiled wasm contracts
+**/*.contract
+**/*.wasm
