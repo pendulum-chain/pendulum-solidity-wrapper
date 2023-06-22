@@ -7,16 +7,23 @@ import {IPriceOracleGetter} from "./interfaces/IPriceOracleGetter.sol";
  * @dev This contract can be used with the Nabla's Router contract
  */
 contract PriceOracleWrapper is IPriceOracleGetter {
-    address public _asset;
-    string public _blockchain;
-    string public _symbol;
+    mapping(address => OracleKey) public _oracleByAsset;
 
     // we store _asset, _blockchain and _symbol for use by function getAssetPrice() which is called by Nabla. 
     // _blockchain and _symbol are the keys used to access a particular price feed from the chain.
-    constructor(address asset, string blockchain, string symbol) {
-        _asset = asset;
-        _blockchain = blockchain;
-        _symbol = symbol;
+    constructor(OracleKey[] oracleKeys) {
+        for (uint i = 0; i < oracleKeys.length; i++) {
+            _oracleByAsset[oracleKeys[i].asset] = oracleKeys[i];
+        }
+    }
+    function getOracleKeyAsset(address asset) external returns (address) {
+        return _oracleByAsset[asset].asset;
+    }
+    function getOracleKeyBlockchain(address asset) external returns (string) {
+        return _oracleByAsset[asset].blockchain;
+    }
+    function getOracleKeySymbol(address asset) external returns (string) {
+        return _oracleByAsset[asset].symbol;
     }
 
     /**
@@ -25,8 +32,8 @@ contract PriceOracleWrapper is IPriceOracleGetter {
      * @return price Asset price in USD
      */
     function getAssetPrice(address asset) external returns (uint256 price) {
-        require(_asset == asset, "Asset does not match");
-        price = uint256(getAnyAssetPrice(_blockchain, _symbol));
+        require(_oracleByAsset[asset].asset == asset, "Asset not supported");
+        price = uint256(getAnyAssetPrice(_oracleByAsset[asset].blockchain, _oracleByAsset[asset].symbol));
     }
 
     function getAnyAssetSupply(string blockchain, string symbol) public returns (uint128 result) {
@@ -78,5 +85,12 @@ contract PriceOracleWrapper is IPriceOracleGetter {
         uint128 supply;
         uint64 last_update_timestamp;
         uint128 price;
+    }
+
+    // The mapping of an asset address with the oracles keys blockchain and symbol
+    struct OracleKey {
+        address asset;
+        string blockchain;
+        string symbol;
     }
 }
