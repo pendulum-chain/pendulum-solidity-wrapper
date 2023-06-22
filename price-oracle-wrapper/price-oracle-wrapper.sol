@@ -16,13 +16,16 @@ contract PriceOracleWrapper is IPriceOracleGetter {
             _oracleByAsset[oracleKeys[i].asset] = oracleKeys[i];
         }
     }
-    function getOracleKeyAsset(address asset) external returns (address) {
+
+    function getOracleKeyAsset(address asset) external view returns (address) {
         return _oracleByAsset[asset].asset;
     }
-    function getOracleKeyBlockchain(address asset) external returns (string) {
+
+    function getOracleKeyBlockchain(address asset) external view returns (string) {
         return _oracleByAsset[asset].blockchain;
     }
-    function getOracleKeySymbol(address asset) external returns (string) {
+
+    function getOracleKeySymbol(address asset) external view returns (string) {
         return _oracleByAsset[asset].symbol;
     }
 
@@ -39,9 +42,11 @@ contract PriceOracleWrapper is IPriceOracleGetter {
     function getAnyAssetSupply(string blockchain, string symbol) public returns (uint128 result) {
         result = getAnyAsset(blockchain, symbol).supply;
     }
+
     function getAnyAssetLastUpdateTimestamp(string blockchain, string symbol) public returns (uint64 result) {
         result = getAnyAsset(blockchain, symbol).last_update_timestamp;
     }
+
     function getAnyAssetPrice(string blockchain, string symbol) public returns (uint128 result) {
         result = getAnyAsset(blockchain, symbol).price;
     }
@@ -50,19 +55,19 @@ contract PriceOracleWrapper is IPriceOracleGetter {
      * @notice performs the actual chain extension call to get the price feed. blockchain and symbol are the keys used to access a particular price feed from the chain.
      * @param blockchain input string
      * @param symbol input string
-     * @return result the struct cointaining all the coin info
+     * @return result the struct containing all the coin info
      */
     function getAnyAsset(string blockchain, string symbol) public returns (CoinInfo result) {
         bytes input = abi.encodePacked(stringToBytes32(blockchain), stringToBytes32(symbol));
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(1200, input);
         require(result_chain_ext == 0, "Call to chain_extension failed.");
 
-        //Since a rust Result<CoinInfo, Error> is returned, we need to check if it was Ok/Err. 0 is Ok, which means the rest is a CoinInfo
+        // Since a Rust Result<CoinInfo, Error> is returned, we need to check if it was Ok/Err. 0 is Ok, which means the rest is a CoinInfo
         require(raw_data[0] == 0, "Chain extension call returned an error.");
         (uint8 _, CoinInfo coinInfo) = abi.decode(raw_data, (uint8, CoinInfo));
         result = coinInfo;
     }
-    
+
     /**
      * @notice converts a string to a bytes of length 32. Will truncate the string or pad with null values to fit the bytes of length 32. This output is the expected format for blockchain and symbol.
      * @param str input string
