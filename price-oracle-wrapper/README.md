@@ -1,4 +1,4 @@
-# price-feed-wrapper
+# price-oracle-wrapper
 
 This contract provides the `function getAssetPrice(address asset) external returns (uint256 price)` function that is expected by Nabla's `IPriceOracleGetter` interface.
 
@@ -17,17 +17,17 @@ brew install hyperledger/hyperledger/solang
 ### Compile the contract
 
 ```bash
-solang compile --target substrate --output solang/contracts price-feed-wrapper.sol
+solang compile --target substrate --output solang/contracts price-oracle-wrapper.sol
 ```
 
 ```bash
 # Or from root directory
-solang compile --target substrate --output target/solang/contracts price-feed-wrapper/price-feed-wrapper.sol 
+solang compile --target substrate --output target/solang/contracts price-oracle-wrapper/price-oracle-wrapper.sol 
 ```
 
 ### Deploying the contract
 
-As a result you will get a file called `PriceFeedWrapper.contract` in the `solang/contracts/` directory.
+As a result you will get a file called `PriceOracleWrapper.contract` in the `solang/contracts/` directory.
 You can now deploy this contract to a parachain using Contracts UI.
 
 

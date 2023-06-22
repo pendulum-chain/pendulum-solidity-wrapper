@@ -2,11 +2,11 @@ import "substrate";
 import {IPriceOracleGetter} from "./interfaces/IPriceOracleGetter.sol";
 
 /**
- * @title PriceFeedWrapper
+ * @title PriceOracleWrapper
  * @notice Price oracle that uses the native chain via chain extension. It stores _asset, _blockchain and _symbol for use by function getAssetPrice() which is called by Nabla. 
  * @dev This contract can be used with the Nabla's Router contract
  */
-contract PriceFeedWrapper is IPriceOracleGetter {
+contract PriceOracleWrapper is IPriceOracleGetter {
     address public _asset;
     string public _blockchain;
     string public _symbol;
@@ -49,9 +49,10 @@ contract PriceFeedWrapper is IPriceOracleGetter {
         bytes input = abi.encodePacked(stringToBytes32(blockchain), stringToBytes32(symbol));
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(1200, input);
         require(result_chain_ext == 0, "Call to chain_extension failed.");
+
+        //Since a rust Result<CoinInfo, Error> is returned, we need to check if it was Ok/Err. 0 is Ok, which means the rest is a CoinInfo
         require(raw_data[0] == 0, "Chain extension call returned an error.");
         (uint8 _, CoinInfo coinInfo) = abi.decode(raw_data, (uint8, CoinInfo));
-        require(raw_data[0] == 0, "Chain extension call returned an error.");
         result = coinInfo;
     }
     
