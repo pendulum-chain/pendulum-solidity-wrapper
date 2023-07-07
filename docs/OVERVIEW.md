@@ -1,24 +1,36 @@
 # Overview
 
+This project is about enabling the interaction between smart contracts and on-chain asset and price data.
+Using the Solang compiler, we can compile Solidity smart contracts to a WASM binaries, which can then be deployed on the
+Contracts pallet.
+The on-chain asset and price data is exposed by so-called chain extensions which facilitate the interaction between the
+smart contract and the pallets.
+Solang integrates special functions that can be used to interact with the chain extensions.
+By using the chain extensions, we can interact with the on-chain asset and price data without the need to change the
+smart contract implementation.
+
 ## Functional Requirements
 
 ### Roles
 
-- User (Contract Caller) - This is a user or a smart contract that expects to interact with a contract that implements
+- User (Contract Caller) - A (human) user or a smart contract that expects to interact with a contract that implements
   the ERC-20 interface.
 
-### Features:
+### Features
 
-Use smart contracts to:
+With the wrapper contracts you can:
 
-- query the chain (e.g. access balances)
-- modify the state of the chain (e.g. transfer assets)
-- No changes to smart contract implementation required
+- query the balance and price data from on-chain pallets
+- transfer tokens to other accounts
+- without the need to change the implementation of existing Solidity smart contracts (ie. users)
 
-### Use Case:
+### Use Case
 
-- Without the need to change the implementation, the solidity smart contract can use the on-chain assets, stored in
-  pallets, by interacting with the wrapper contract.
+Existing DeFi smart contracts are written in Solidity and expect to interact with other smart contracts that implement
+the ERC-20 interface.
+These smart contracts are not aware of the fact that the token data is stored in on-chain pallets.
+With using these wrapper contracts, fulfilling expected interfaces, we can facilitate the deployment of existing
+Solidity smart contracts on the parachain.
 
 ## Technical requirements
 
