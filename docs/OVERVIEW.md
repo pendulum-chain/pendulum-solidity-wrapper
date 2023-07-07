@@ -36,6 +36,8 @@ They only implement the interface of the wrapped contract and forward the calls 
 
 ### Architecture Overview
 
+![Architecture Overview](./figures/architecture-overview.png)
+
 ### Contract Information
 
 #### ERC-20 Wrapper
