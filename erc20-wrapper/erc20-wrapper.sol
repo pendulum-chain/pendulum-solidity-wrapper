@@ -13,6 +13,20 @@ contract ERC20Wrapper {
     bytes12 private _code;
     bytes32 private _issuer;
 
+    /**
+     * @dev Emitted when `value` tokens are moved from one account (`from`) to
+     * another (`to`).
+     *
+     * Note that `value` may be zero.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    /**
+     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+     * a call to {approve}. `value` is the new allowance.
+     */
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
     constructor(string memory name_, string memory symbol_, uint8 decimals_, bytes1 variant_, bytes1 index_, bytes12 code_, bytes32 issuer_) {
         _name = name_;
         _symbol = symbol_;
@@ -84,6 +98,8 @@ contract ERC20Wrapper {
 
         // If the call to chain_extension was successful, the raw_data will contain only `0`s
         bool success = isBytesAllZeros(raw_data);
+
+        emit Transfer(msg.sender, _to, _amount);
         return success;
     }
 
@@ -114,6 +130,8 @@ contract ERC20Wrapper {
 
         // If the call to chain_extension was successful, the raw_data will contain only `0`s
         bool success = isBytesAllZeros(raw_data);
+
+        emit Approval(msg.sender, _spender, _amount);
         return success;
     }
 
@@ -131,6 +149,8 @@ contract ERC20Wrapper {
 
         // If the call to chain_extension was successful, the raw_data will contain only `0`s
         bool success = isBytesAllZeros(raw_data);
+
+        emit Transfer(_from, _to, _amount);
         return success;
     }
 
