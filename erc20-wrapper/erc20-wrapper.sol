@@ -2,16 +2,16 @@ import "substrate";
 
 contract ERC20Wrapper {
 
-    string private _name;
-    string private _symbol;
-    uint8 private _decimals;
+    string immutable private _name;
+    string immutable private _symbol;
+    uint8 immutable private _decimals;
 
-    bytes1 private _variant;
-    bytes1 private _index;
+    bytes1 immutable private _variant;
+    bytes1 immutable private _index;
 
     // This can be either 4 or 12 bytes long
-    bytes12 private _code;
-    bytes32 private _issuer;
+    bytes12 immutable private _code;
+    bytes32 immutable private _issuer;
 
     constructor(string memory name_, string memory symbol_, uint8 decimals_, bytes1 variant_, bytes1 index_, bytes12 code_, bytes32 issuer_) {
         _name = name_;
