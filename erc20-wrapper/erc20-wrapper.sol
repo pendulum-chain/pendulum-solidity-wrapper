@@ -86,6 +86,14 @@ contract ERC20Wrapper {
     }
 
     function transfer(address _to, uint256 _amount) public returns (bool) {
+        address from = msg.sender;
+        if (from == address(0)) {
+            revert("ERC20InvalidSender");
+        }
+        if (_to == address(0)) {
+            revert("ERC20InvalidReceiver");
+        }
+
         bytes currency = createCurrencyId();
         bytes to = abi.encode(_to);
 
@@ -118,6 +126,14 @@ contract ERC20Wrapper {
     }
 
     function approve(address _spender, uint256 _amount) public returns (bool) {
+        address owner = msg.sender;
+        if (owner == address(0)) {
+            revert("ERC20InvalidApprover");
+        }
+        if (_spender == address(0)) {
+            revert("ERC20InvalidSpender");
+        }
+
         bytes currency = createCurrencyId();
         bytes spender = abi.encode(_spender);
 
