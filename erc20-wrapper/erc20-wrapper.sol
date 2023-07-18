@@ -1,3 +1,6 @@
+// This file does not define a pragma version because it is meant to be compiled with Solang and Solang ignores
+// pragma definitions, see [here](https://solang.readthedocs.io/en/latest/language/pragmas.html).
+
 import "substrate";
 
 contract ERC20Wrapper {
