@@ -139,9 +139,15 @@ contract ERC20Wrapper {
 
         bytes currency = createCurrencyId();
         bytes spender = abi.encode(_spender);
-
-        uint128 amountU128 = convertU256toU128(_amount);
-        bytes amount = abi.encode(amountU128);
+        
+        //In ERC20, amount u256::MAX means unlimited approval, but chain uses u128::MAX. So we convert accordingly if that is the case.
+        bytes amount;
+        if (_amount == 2**256 - 1) {
+            amount = abi.encode(2**128 - 1);
+        } else {
+            uint128 amountU128 = convertU256toU128(_amount);
+            amount = abi.encode(amountU128);
+        }
 
         bytes input = abi.encodePacked(currency, spender, amount);
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(1105, input);
