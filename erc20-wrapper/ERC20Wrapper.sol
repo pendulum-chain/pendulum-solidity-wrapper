@@ -45,7 +45,7 @@ contract ERC20Wrapper {
     /**
      * @dev Returns the name of the token.
      */
-    function name() external view virtual returns (string memory) {
+    function name() external view returns (string memory) {
         return _name;
     }
 
@@ -53,11 +53,11 @@ contract ERC20Wrapper {
      * @dev Returns the symbol of the token, usually a shorter version of the
      * name.
      */
-    function symbol() external view virtual returns (string memory) {
+    function symbol() external view returns (string memory) {
         return _symbol;
     }
 
-    function decimals() external view virtual returns (uint8) {
+    function decimals() external view returns (uint8) {
         return _decimals;
     }
 
