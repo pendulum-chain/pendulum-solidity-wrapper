@@ -27,27 +27,27 @@ contract PriceOracleWrapper is IPriceOracleGetter {
         string symbol;
     }
 
-    mapping(address => OracleKey) public _oracleByAsset;
+    mapping(address => OracleKey) public oracleByAsset;
 
     // we store _asset, _blockchain and _symbol for use by function getAssetPrice() which is called by Nabla. 
     // _blockchain and _symbol are the keys used to access a particular price feed from the chain.
     constructor(OracleKey[] oracleKeys) {
         uint oracleKeysLength = oracleKeys.length;
         for (uint i = 0; i < oracleKeysLength; i++) {
-            _oracleByAsset[oracleKeys[i].asset] = oracleKeys[i];
+            oracleByAsset[oracleKeys[i].asset] = oracleKeys[i];
         }
     }
 
     function getOracleKeyAsset(address asset) external view returns (address) {
-        return _oracleByAsset[asset].asset;
+        return oracleByAsset[asset].asset;
     }
 
     function getOracleKeyBlockchain(address asset) external view returns (string) {
-        return _oracleByAsset[asset].blockchain;
+        return oracleByAsset[asset].blockchain;
     }
 
     function getOracleKeySymbol(address asset) external view returns (string) {
-        return _oracleByAsset[asset].symbol;
+        return oracleByAsset[asset].symbol;
     }
 
     /**
@@ -56,8 +56,8 @@ contract PriceOracleWrapper is IPriceOracleGetter {
      * @return price Asset price in USD
      */
     function getAssetPrice(address asset) external returns (uint256 price) {
-        require(_oracleByAsset[asset].asset == asset, "Asset not supported");
-        price = uint256(getAnyAssetPrice(_oracleByAsset[asset].blockchain, _oracleByAsset[asset].symbol));
+        require(oracleByAsset[asset].asset == asset, "Asset not supported");
+        price = uint256(getAnyAssetPrice(oracleByAsset[asset].blockchain, oracleByAsset[asset].symbol));
     }
 
     function getAnyAssetSupply(string blockchain, string symbol) external returns (uint128 result) {
