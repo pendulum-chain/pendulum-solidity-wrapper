@@ -10,6 +10,23 @@ import {IPriceOracleGetter} from "./interfaces/IPriceOracleGetter.sol";
  * @dev This contract can be used with the Nabla's Router contract
  */
 contract PriceOracleWrapper is IPriceOracleGetter {
+    // The coin info returned by the chain extension call
+    struct CoinInfo {
+        bytes symbol;
+        bytes name;
+        bytes blockchain;
+        uint128 supply;
+        uint64 last_update_timestamp;
+        uint128 price;
+    }
+
+    // The mapping of an asset address with the oracles keys blockchain and symbol
+    struct OracleKey {
+        address asset;
+        string blockchain;
+        string symbol;
+    }
+
     mapping(address => OracleKey) public _oracleByAsset;
 
     // we store _asset, _blockchain and _symbol for use by function getAssetPrice() which is called by Nabla. 
@@ -85,20 +102,5 @@ contract PriceOracleWrapper is IPriceOracleGetter {
         result32 = output;
     }
 
-    // The coin info returned by the chain extension call
-    struct CoinInfo {
-        bytes symbol;
-        bytes name;
-        bytes blockchain;
-        uint128 supply;
-        uint64 last_update_timestamp;
-        uint128 price;
-    }
-
-    // The mapping of an asset address with the oracles keys blockchain and symbol
-    struct OracleKey {
-        address asset;
-        string blockchain;
-        string symbol;
-    }
+    
 }
