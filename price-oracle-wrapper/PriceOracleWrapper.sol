@@ -32,7 +32,8 @@ contract PriceOracleWrapper is IPriceOracleGetter {
     // we store _asset, _blockchain and _symbol for use by function getAssetPrice() which is called by Nabla. 
     // _blockchain and _symbol are the keys used to access a particular price feed from the chain.
     constructor(OracleKey[] oracleKeys) {
-        for (uint i = 0; i < oracleKeys.length; i++) {
+        uint oracleKeysLength = oracleKeys.length;
+        for (uint i = 0; i < oracleKeysLength; i++) {
             _oracleByAsset[oracleKeys[i].asset] = oracleKeys[i];
         }
     }
