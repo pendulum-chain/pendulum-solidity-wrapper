@@ -45,7 +45,7 @@ contract ERC20Wrapper {
     /**
      * @dev Returns the name of the token.
      */
-    function name() public view virtual returns (string memory) {
+    function name() external view virtual returns (string memory) {
         return _name;
     }
 
@@ -53,15 +53,15 @@ contract ERC20Wrapper {
      * @dev Returns the symbol of the token, usually a shorter version of the
      * name.
      */
-    function symbol() public view virtual returns (string memory) {
+    function symbol() external view virtual returns (string memory) {
         return _symbol;
     }
 
-    function decimals() public view virtual returns (uint8) {
+    function decimals() external view virtual returns (uint8) {
         return _decimals;
     }
 
-    function totalSupply() public returns (uint256) {
+    function totalSupply() external returns (uint256) {
         bytes currency = createCurrencyId();
         bytes input = currency;
 
@@ -73,7 +73,7 @@ contract ERC20Wrapper {
         return totalSupplyU256;
     }
 
-    function balanceOf(address _owner) public returns (uint256) {
+    function balanceOf(address _owner) external returns (uint256) {
         // Encode currency and address
         bytes currency = createCurrencyId();
         bytes owner = abi.encode(_owner);
@@ -88,7 +88,7 @@ contract ERC20Wrapper {
         return balanceU256;
     }
 
-    function transfer(address _to, uint256 _amount) public returns (bool) {
+    function transfer(address _to, uint256 _amount) external returns (bool) {
         address from = msg.sender;
         if (from == address(0)) {
             revert("ERC20InvalidSender");
@@ -114,7 +114,7 @@ contract ERC20Wrapper {
         return success;
     }
 
-    function allowance(address _owner, address _spender) public returns (uint256) {
+    function allowance(address _owner, address _spender) external returns (uint256) {
         bytes currency = createCurrencyId();
         bytes owner = abi.encode(_owner);
         bytes spender = abi.encode(_spender);
@@ -128,7 +128,7 @@ contract ERC20Wrapper {
         return allowanceU256;
     }
 
-    function approve(address _spender, uint256 _amount) public returns (bool) {
+    function approve(address _spender, uint256 _amount) external returns (bool) {
         address owner = msg.sender;
         if (owner == address(0)) {
             revert("ERC20InvalidApprover");
@@ -160,7 +160,7 @@ contract ERC20Wrapper {
         return success;
     }
 
-    function transferFrom(address _from, address _to, uint256 _amount) public returns (bool) {
+    function transferFrom(address _from, address _to, uint256 _amount) external returns (bool) {
         bytes from = abi.encode(_from);
         bytes currency = createCurrencyId();
         bytes to = abi.encode(_to);

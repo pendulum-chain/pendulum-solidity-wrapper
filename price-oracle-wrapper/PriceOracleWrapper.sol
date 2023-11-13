@@ -42,11 +42,11 @@ contract PriceOracleWrapper is IPriceOracleGetter {
         price = uint256(getAnyAssetPrice(_oracleByAsset[asset].blockchain, _oracleByAsset[asset].symbol));
     }
 
-    function getAnyAssetSupply(string blockchain, string symbol) public returns (uint128 result) {
+    function getAnyAssetSupply(string blockchain, string symbol) external returns (uint128 result) {
         result = getAnyAsset(blockchain, symbol).supply;
     }
 
-    function getAnyAssetLastUpdateTimestamp(string blockchain, string symbol) public returns (uint64 result) {
+    function getAnyAssetLastUpdateTimestamp(string blockchain, string symbol) external returns (uint64 result) {
         result = getAnyAsset(blockchain, symbol).last_update_timestamp;
     }
 
