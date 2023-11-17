@@ -10,26 +10,44 @@ import {IPriceOracleGetter} from "./interfaces/IPriceOracleGetter.sol";
  * @dev This contract can be used with the Nabla's Router contract
  */
 contract PriceOracleWrapper is IPriceOracleGetter {
-    mapping(address => OracleKey) public _oracleByAsset;
+    // The coin info returned by the chain extension call
+    struct CoinInfo {
+        bytes symbol;
+        bytes name;
+        bytes blockchain;
+        uint128 supply;
+        uint64 last_update_timestamp;
+        uint128 price;
+    }
+
+    // The mapping of an asset address with the oracles keys blockchain and symbol
+    struct OracleKey {
+        address asset;
+        string blockchain;
+        string symbol;
+    }
+
+    mapping(address => OracleKey) public oracleByAsset;
 
     // we store _asset, _blockchain and _symbol for use by function getAssetPrice() which is called by Nabla. 
     // _blockchain and _symbol are the keys used to access a particular price feed from the chain.
     constructor(OracleKey[] oracleKeys) {
-        for (uint i = 0; i < oracleKeys.length; i++) {
-            _oracleByAsset[oracleKeys[i].asset] = oracleKeys[i];
+        uint oracleKeysLength = oracleKeys.length;
+        for (uint i = 0; i < oracleKeysLength; i++) {
+            oracleByAsset[oracleKeys[i].asset] = oracleKeys[i];
         }
     }
 
     function getOracleKeyAsset(address asset) external view returns (address) {
-        return _oracleByAsset[asset].asset;
+        return oracleByAsset[asset].asset;
     }
 
     function getOracleKeyBlockchain(address asset) external view returns (string) {
-        return _oracleByAsset[asset].blockchain;
+        return oracleByAsset[asset].blockchain;
     }
 
     function getOracleKeySymbol(address asset) external view returns (string) {
-        return _oracleByAsset[asset].symbol;
+        return oracleByAsset[asset].symbol;
     }
 
     /**
@@ -38,15 +56,15 @@ contract PriceOracleWrapper is IPriceOracleGetter {
      * @return price Asset price in USD
      */
     function getAssetPrice(address asset) external returns (uint256 price) {
-        require(_oracleByAsset[asset].asset == asset, "Asset not supported");
-        price = uint256(getAnyAssetPrice(_oracleByAsset[asset].blockchain, _oracleByAsset[asset].symbol));
+        require(oracleByAsset[asset].asset == asset, "Asset not supported");
+        price = uint256(getAnyAssetPrice(oracleByAsset[asset].blockchain, oracleByAsset[asset].symbol));
     }
 
-    function getAnyAssetSupply(string blockchain, string symbol) public returns (uint128 result) {
+    function getAnyAssetSupply(string blockchain, string symbol) external returns (uint128 result) {
         result = getAnyAsset(blockchain, symbol).supply;
     }
 
-    function getAnyAssetLastUpdateTimestamp(string blockchain, string symbol) public returns (uint64 result) {
+    function getAnyAssetLastUpdateTimestamp(string blockchain, string symbol) external returns (uint64 result) {
         result = getAnyAsset(blockchain, symbol).last_update_timestamp;
     }
 
@@ -85,20 +103,5 @@ contract PriceOracleWrapper is IPriceOracleGetter {
         result32 = output;
     }
 
-    // The coin info returned by the chain extension call
-    struct CoinInfo {
-        bytes symbol;
-        bytes name;
-        bytes blockchain;
-        uint128 supply;
-        uint64 last_update_timestamp;
-        uint128 price;
-    }
-
-    // The mapping of an asset address with the oracles keys blockchain and symbol
-    struct OracleKey {
-        address asset;
-        string blockchain;
-        string symbol;
-    }
+    
 }
