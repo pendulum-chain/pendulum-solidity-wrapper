@@ -2,7 +2,9 @@
 // pragma definitions, see [here](https://solang.readthedocs.io/en/latest/language/pragmas.html).
 
 import "polkadot";
-import "@openzeppelin/interfaces/IERC20.sol";
+
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 contract ERC20Wrapper is IERC20, IERC20Metadata {
 
@@ -62,7 +64,7 @@ contract ERC20Wrapper is IERC20, IERC20Metadata {
         return _decimals;
     }
 
-    function totalSupply() external returns (uint256) {
+    function totalSupply() external view returns (uint256) {
         bytes currency = createCurrencyId();
         bytes input = currency;
 
@@ -74,7 +76,7 @@ contract ERC20Wrapper is IERC20, IERC20Metadata {
         return totalSupplyU256;
     }
 
-    function balanceOf(address _owner) external returns (uint256) {
+    function balanceOf(address _owner) external view returns (uint256) {
         // Encode currency and address
         bytes currency = createCurrencyId();
         bytes owner = abi.encode(_owner);
@@ -115,7 +117,7 @@ contract ERC20Wrapper is IERC20, IERC20Metadata {
         return success;
     }
 
-    function allowance(address _owner, address _spender) external returns (uint256) {
+    function allowance(address _owner, address _spender) external view returns (uint256) {
         bytes currency = createCurrencyId();
         bytes owner = abi.encode(_owner);
         bytes spender = abi.encode(_spender);
@@ -180,7 +182,7 @@ contract ERC20Wrapper is IERC20, IERC20Metadata {
         return success;
     }
 
-    function createCurrencyId() private view returns (bytes) {
+    function createCurrencyId() internal view returns (bytes) {
         bytes memory currency = new bytes(0);
         // We use the knowledge we have about our `CurrencyId` enum to craft the encoding
         if (_variant == 0) {

@@ -1,0 +1,18 @@
+{
+  "name": "pendulumwrappers",
+  "version": "1.0.0",
+  "description": "A collection of ink! contracts that interact with Pendulum's chain extensions.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@openzeppelin/contracts": "^5.0.1"
+  }
+}

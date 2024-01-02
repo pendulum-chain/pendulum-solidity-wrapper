@@ -22,3 +22,5 @@
 # Compiled wasm contracts
 **/*.contract
 **/*.wasm
+
+/node_modules

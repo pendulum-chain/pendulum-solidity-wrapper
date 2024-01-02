@@ -2,7 +2,7 @@
 // pragma definitions, see [here](https://solang.readthedocs.io/en/latest/language/pragmas.html).
 
 import "polkadot";
-import "../er20-wrapper/ERC20Wrapper.sol";
+import {ERC20Wrapper} from "../erc20-wrapper/ERC20Wrapper.sol";
 
 contract TestableERC20Wrapper is ERC20Wrapper {
     /**
