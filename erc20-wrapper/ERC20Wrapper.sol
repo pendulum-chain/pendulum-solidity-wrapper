@@ -2,8 +2,9 @@
 // pragma definitions, see [here](https://solang.readthedocs.io/en/latest/language/pragmas.html).
 
 import "polkadot";
+import "@openzeppelin/interfaces/IERC20.sol";
 
-contract ERC20Wrapper {
+contract ERC20Wrapper is IERC20, IERC20Metadata {
 
     string immutable private _name;
     string immutable private _symbol;
