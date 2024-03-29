@@ -9,25 +9,7 @@ the logic of the pallets. Notably, fetching latest price of assets from the chai
 
 Please see 'docs' for a more information.
 
-# Compiling the solidity contract
-
-### Install solang
-
-```bash
-brew install hyperledger/hyperledger/solang
-```
-
-### Compile the contract
-
-```bash
-solang compile --target polkadot {path/to/contract}.sol
-```
-
-### Deploying the contract
-
-As a result you will get a file called `{contract}.contract`.
-You can now deploy this contract to a parachain using Contracts UI.
-
+For information about compiling the contracts, see the `README` file on each contract directory.
 
 
 
