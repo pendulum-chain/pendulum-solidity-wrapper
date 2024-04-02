@@ -60,7 +60,7 @@ This section contains detailed information about the contracts used in this proj
 
 #### ERC-20 Wrapper
 
-The `erc20-wrapper.sol` contract is a Solidity smart contract that implements
+The `ERC20Wrapper.sol` contract is a Solidity smart contract that implements
 the [IERC20](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol)
 interface.
 It uses
@@ -69,7 +69,7 @@ function to communicate with the `Tokens` pallet of the Pendulum runtime.
 The usage of the chain extension is tailored to the chain extensions exposed by the Pendulum runtimes,
 see [here](https://github.com/pendulum-chain/pendulum/blob/72ac4234b5b4ad5eed4a9d9f85215167f45b6f91/runtime/foucoco/src/lib.rs#L936-L1186).
 
-The constructor of the `erc20-wrapper.sol` contract takes the following arguments:
+The constructor of the `ERC20Wrapper.sol` contract takes the following arguments:
 
 - `name` - The name of the token.
 - `symbol` - The symbol of the token.
@@ -99,12 +99,12 @@ The `variant` hereby corresponds to the index in the outer enum, while the `inde
 
 #### Price Oracle Wrapper
 
-The `price-oracle-wrapper.sol` contract is a Solidity smart contract that implements
+The `PriceOracleWrapper.sol` contract is a Solidity smart contract that implements
 the [IPriceOracleGetter](https://github.com/aave/aave-protocol/blob/4b4545fb583fd4f400507b10f3c3114f45b8a037/contracts/interfaces/IPriceOracleGetter.sol)
 interface.
 It uses the chain extensions exposed by the Pendulum runtimes to get access to on-chain price data.
 
-The `price-oracle-wrapper.sol` contract takes an array of `OracleKey` structs in its constructor.
+The `PriceOracleWrapper.sol` contract takes an array of `OracleKey` structs in its constructor.
 These `OracleKey`s are necessary so that the contract knows how to access the price data from the chain extension.
 The `OracleKey` struct contains the following fields:
 
