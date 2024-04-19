@@ -65,7 +65,7 @@ contract ERC20Wrapper {
         bytes currency = createCurrencyId();
         bytes input = currency;
 
-        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1101, input);
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension((1 << 16) + 1101, input);
         require(result_chain_ext == 0, "Call to chain_extension failed.");
 
         uint128 totalSupplyU128 = abi.decode(raw_data, (uint128));
@@ -80,7 +80,7 @@ contract ERC20Wrapper {
         // Concatenate the already encoded values with abi.encodePacked()
         bytes input = abi.encodePacked(currency, owner);
 
-        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1102, input);
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension((1 << 16) + 1102, input);
         require(result_chain_ext == 0, "Call to chain_extension failed.");
 
         uint128 balanceU128 = abi.decode(raw_data, (uint128));
@@ -104,7 +104,7 @@ contract ERC20Wrapper {
         bytes amount = abi.encode(amountU128);
 
         bytes input = abi.encodePacked(currency, to, amount);
-        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1103, input);
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension((1 << 16) + 1103, input);
         require(result_chain_ext == 0, "Call to chain_extension failed.");
 
         // If the call to chain_extension was successful, the raw_data will contain only `0`s
@@ -120,7 +120,7 @@ contract ERC20Wrapper {
         bytes spender = abi.encode(_spender);
         bytes input = abi.encodePacked(currency, owner, spender);
 
-        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1104, input);
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension((1 << 16) + 1104, input);
         require(result_chain_ext == 0, "Call to chain_extension failed.");
 
         uint128 allowanceU128 = abi.decode(raw_data, (uint128));
@@ -150,7 +150,7 @@ contract ERC20Wrapper {
         }
 
         bytes input = abi.encodePacked(currency, spender, amount);
-        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1105, input);
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension((1 << 16) + 1105, input);
         require(result_chain_ext == 0, "Call to chain_extension failed.");
 
         // If the call to chain_extension was successful, the raw_data will contain only `0`s
@@ -169,7 +169,7 @@ contract ERC20Wrapper {
         bytes amount = abi.encode(amountU128);
 
         bytes input = abi.encodePacked(from, currency, to, amount);
-        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1106, input);
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension((1 << 16) + 1106, input);
         require(result_chain_ext == 0, "Call to chain_extension failed.");
 
         // If the call to chain_extension was successful, the raw_data will contain only `0`s
