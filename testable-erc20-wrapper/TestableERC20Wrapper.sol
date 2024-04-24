@@ -89,7 +89,7 @@ contract TestableERC20Wrapper {
         bytes input = currency;
 
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(
-            1101,
+            (1 << 16) + 1101,
             input
         );
         require(result_chain_ext == 0, "Call to chain_extension failed.");
@@ -107,7 +107,7 @@ contract TestableERC20Wrapper {
         bytes input = abi.encodePacked(currency, owner);
 
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(
-            1102,
+            (1 << 16) + 1102,
             input
         );
         require(result_chain_ext == 0, "Call to chain_extension failed.");
@@ -134,7 +134,7 @@ contract TestableERC20Wrapper {
 
         bytes input = abi.encodePacked(currency, to, amount);
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(
-            1103,
+            (1 << 16) + 1103,
             input
         );
         require(result_chain_ext == 0, "Call to chain_extension failed.");
@@ -156,7 +156,7 @@ contract TestableERC20Wrapper {
         bytes input = abi.encodePacked(currency, owner, spender);
 
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(
-            1104,
+            (1 << 16) + 1104,
             input
         );
         require(result_chain_ext == 0, "Call to chain_extension failed.");
@@ -189,7 +189,7 @@ contract TestableERC20Wrapper {
 
         bytes input = abi.encodePacked(currency, spender, amount);
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(
-            1105,
+            (1 << 16) + 1105,
             input
         );
         require(result_chain_ext == 0, "Call to chain_extension failed.");
@@ -215,7 +215,7 @@ contract TestableERC20Wrapper {
 
         bytes input = abi.encodePacked(from, currency, to, amount);
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(
-            1106,
+            (1 << 16) + 1106,
             input
         );
         require(result_chain_ext == 0, "Call to chain_extension failed.");
@@ -236,7 +236,7 @@ contract TestableERC20Wrapper {
 
         bytes input = abi.encodePacked(currency, to, amount);
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(
-            1107,
+            (1 << 16) + 1107,
             input
         );
         require(result_chain_ext == 0, "Call to chain_extension failed.");
@@ -257,7 +257,7 @@ contract TestableERC20Wrapper {
 
         bytes input = abi.encodePacked(currency, from, amount);
         (uint32 result_chain_ext, bytes raw_data) = chain_extension(
-            1108,
+            (1 << 16) + 1108,
             input
         );
         require(result_chain_ext == 0, "Call to chain_extension failed.");

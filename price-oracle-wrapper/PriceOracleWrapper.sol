@@ -80,7 +80,7 @@ contract PriceOracleWrapper is IPriceOracleGetter {
      */
     function getAnyAsset(string blockchain, string symbol) public returns (CoinInfo result) {
         bytes input = abi.encodePacked(stringToBytes32(blockchain), stringToBytes32(symbol));
-        (uint32 result_chain_ext, bytes raw_data) = chain_extension(1200, input);
+        (uint32 result_chain_ext, bytes raw_data) = chain_extension((2 << 16) + 1200, input);
         require(result_chain_ext == 0, "Call to chain_extension failed.");
 
         // Since a Rust Result<CoinInfo, Error> is returned, we need to check if it was Ok/Err. 0 is Ok, which means the rest is a CoinInfo
